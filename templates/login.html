@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Iniciar Sesión - DimaFarm{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow">
+            <div class="card-header text-center bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('login') }}">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-envelope"></i>
+                            </span>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   required placeholder="tu@email.com">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                            <input type="password" class="form-control" id="password" name="password" 
+                                   required placeholder="Tu contraseña">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
+                        <label class="form-check-label" for="remember_me">
+                            Recordarme
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100 mb-3">
+                        <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+                    </button>
+                </form>
+                
+                <hr>
+                
+                <div class="text-center">
+                    <p class="mb-2">¿No tienes una cuenta?</p>
+                    <a href="{{ url_for('register') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-user-plus me-2"></i>Registrarse
+                    </a>
+                </div>
+                
+                <hr>
+                
+                <div class="text-center">
+                    <p class="mb-2">¿Eres administrador de farmacia?</p>
+                    <a href="{{ url_for('pharmacy_login') }}" class="btn btn-outline-success">
+                        <i class="fas fa-clinic-medical me-2"></i>Acceso Farmacia
+                    </a>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <p class="mb-2">¿Eres administrador del sistema?</p>
+                    <a href="{{ url_for('admin_login') }}" class="btn btn-outline-warning">
+                        <i class="fas fa-cog me-2"></i>Acceso Sistema
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Help Section -->
+        <div class="card mt-3">
+            <div class="card-body">
+                <h6><i class="fas fa-question-circle me-2"></i>¿Necesitas ayuda?</h6>
+                <p class="small text-muted mb-2">
+                    Si tienes problemas para acceder a tu cuenta, contacta con el soporte técnico.
+                </p>
+                <div class="d-flex justify-content-center">
+                    <a href="mailto:soporte@dimafarm.com" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-envelope me-1"></i>Contactar Soporte
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    
+    // Form validation
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        
+        // Reset previous validation states
+        [emailInput, passwordInput].forEach(input => {
+            input.classList.remove('is-invalid');
+        });
+        
+        // Email validation
+        if (!emailInput.value.trim()) {
+            emailInput.classList.add('is-invalid');
+            isValid = false;
+        } else if (!isValidEmail(emailInput.value)) {
+            emailInput.classList.add('is-invalid');
+            isValid = false;
+        }
+        
+        // Password validation
+        if (!passwordInput.value.trim()) {
+            passwordInput.classList.add('is-invalid');
+            isValid = false;
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Por favor, corrige los errores en el formulario.');
+        }
+    });
+    
+    // Real-time validation
+    emailInput.addEventListener('blur', function() {
+        if (this.value.trim() && !isValidEmail(this.value)) {
+            this.classList.add('is-invalid');
+        } else {
+            this.classList.remove('is-invalid');
+        }
+    });
+    
+    passwordInput.addEventListener('blur', function() {
+        if (!this.value.trim()) {
+            this.classList.add('is-invalid');
+        } else {
+            this.classList.remove('is-invalid');
+        }
+    });
+    
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+});
+</script>
+{% endblock %}

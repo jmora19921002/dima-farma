@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | DimaFarm{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2">
+            <i class="fas fa-tachometer-alt me-2"></i>Dashboard del Sistema
+        </h1>
+        <p class="text-muted">Panel de control para administradores del sistema DimaFarm</p>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="card bg-primary text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Total Farmacias</h6>
+                        <h2 class="mb-0">{{ total_pharmacies }}</h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-clinic-medical fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card bg-success text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Farmacias Activas</h6>
+                        <h2 class="mb-0">{{ active_pharmacies }}</h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+        <div class="card bg-warning text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Suscripciones Pendientes</h6>
+                        <h2 class="mb-0">{{ pending_subscriptions }}</h2>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-clock fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-bolt me-2"></i>Acciones Rápidas
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ url_for('admin_pharmacies') }}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-clinic-medical me-2"></i>Gestionar Farmacias
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ url_for('admin_subscriptions') }}" class="btn btn-outline-warning w-100">
+                            <i class="fas fa-credit-card me-2"></i>Ver Suscripciones
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="#" class="btn btn-outline-info w-100">
+                            <i class="fas fa-chart-bar me-2"></i>Reportes
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="#" class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-cog me-2"></i>Configuración
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Information -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Información del Sistema
+                </h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="fas fa-server me-2 text-primary"></i>
+                        <strong>Servidor:</strong> DimaFarm v1.0
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-database me-2 text-success"></i>
+                        <strong>Base de Datos:</strong> MySQL
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-clock me-2 text-info"></i>
+                        <strong>Última Actualización:</strong> {{ current_time.strftime('%d/%m/%Y %H:%M') if current_time else 'Hoy' }}
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-shield-alt me-2"></i>Estado del Sistema
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-2">
+                    <span class="badge bg-success me-2">●</span>
+                    <span>Sistema operativo</span>
+                </div>
+                <div class="d-flex align-items-center mb-2">
+                    <span class="badge bg-success me-2">●</span>
+                    <span>Base de datos conectada</span>
+                </div>
+                <div class="d-flex align-items-center mb-2">
+                    <span class="badge bg-success me-2">●</span>
+                    <span>Servicios activos</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

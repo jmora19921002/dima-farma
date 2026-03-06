@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}Confirmación de Pedido - DimaFarm{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Inicio</a></li>
+                <li class="breadcrumb-item active">Confirmación de Pedido</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white text-center">
+                <i class="fas fa-check-circle fa-3x mb-3"></i>
+                <h2 class="mb-0">¡Pedido Confirmado!</h2>
+            </div>
+            <div class="card-body text-center">
+                <p class="lead mb-4">Tu pedido ha sido procesado exitosamente. Te hemos enviado un correo de confirmación.</p>
+                
+                <div class="alert alert-info">
+                    <h5 class="mb-2">
+                        <i class="fas fa-info-circle me-2"></i>Número de Pedido
+                    </h5>
+                    <h3 class="text-primary mb-0">{{ order.order_number or 'PEND-' + order.id|string }}</h3>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Order Details -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-receipt me-2"></i>Detalles del Pedido
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Información del Cliente</h6>
+                        <p><strong>Nombre:</strong> {{ order.customer_name }}</p>
+                        <p><strong>Email:</strong> {{ order.customer_email }}</p>
+                        {% if order.customer_phone %}
+                        <p><strong>Teléfono:</strong> {{ order.customer_phone }}</p>
+                        {% endif %}
+                        <p><strong>Dirección:</strong> {{ order.customer_address }}</p>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h6>Información del Pedido</h6>
+                        <p><strong>Fecha:</strong> {{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</p>
+                        <p><strong>Estado:</strong> 
+                            <span class="badge bg-warning">{{ order.status|title }}</span>
+                        </p>
+                        <p><strong>Total:</strong> 
+                            <span class="text-success fw-bold">${{ "%.2f"|format(order.total_amount) }}</span>
+                        </p>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <h6>Productos Ordenados</h6>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unitario</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if item.product.image_url %}
+                                        <img src="{{ url_for('static', filename='images/' + item.product.image_url) }}" 
+                                             class="me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                        {% else %}
+                                        <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center" 
+                                             style="width: 50px; height: 50px;">
+                                            <i class="fas fa-pills text-muted"></i>
+                                        </div>
+                                        {% endif %}
+                                        <div>
+                                            <strong>{{ item.product.name }}</strong>
+                                            <br>
+                                            <small class="text-muted">{{ item.product.pharmacy.name }}</small>
+                                        </td>
+                                        <td>{{ item.quantity }}</td>
+                                        <td>${{ "%.2f"|format(item.price) }}</td>
+                                        <td>${{ "%.2f"|format(item.price * item.quantity) }}</td>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                <td><strong class="text-success">${{ "%.2f"|format(order.total_amount) }}</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Next Steps -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-arrow-right me-2"></i>Próximos Pasos
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-center mb-3">
+                        <div class="p-3">
+                            <i class="fas fa-clock fa-2x text-primary mb-2"></i>
+                            <h6>1. Confirmación</h6>
+                            <p class="small text-muted">Recibirás una confirmación por email en los próximos minutos.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 text-center mb-3">
+                        <div class="p-3">
+                            <i class="fas fa-truck fa-2x text-success mb-2"></i>
+                            <h6>2. Preparación</h6>
+                            <p class="small text-muted">La farmacia preparará tu pedido y te contactará para coordinar la entrega.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 text-center mb-3">
+                        <div class="p-3">
+                            <i class="fas fa-home fa-2x text-warning mb-2"></i>
+                            <h6>3. Entrega</h6>
+                            <p class="small text-muted">Tu pedido será entregado en la dirección que especificaste.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <h6><i class="fas fa-exclamation-triangle me-2"></i>Importante</h6>
+                    <ul class="mb-0">
+                        <li>Mantén tu teléfono disponible para recibir llamadas de la farmacia.</li>
+                        <li>Verifica que la dirección de entrega sea correcta.</li>
+                        <li>Ten el monto exacto listo si pagas en efectivo.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="text-center mt-4">
+            <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg me-3">
+                <i class="fas fa-shopping-bag me-2"></i>Seguir Comprando
+            </a>
+            
+            <button class="btn btn-outline-secondary btn-lg" onclick="window.print()">
+                <i class="fas fa-print me-2"></i>Imprimir Pedido
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+@media print {
+    .navbar, .footer, .btn, .breadcrumb {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+    }
+    
+    .card-header {
+        background-color: #f8f9fa !important;
+        color: #000 !important;
+    }
+}
+</style>
+{% endblock %}

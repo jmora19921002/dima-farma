@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}Carrito - {{ pharmacy.name }}{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="bg-primary text-white py-4">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="h2 mb-2">
+                    <i class="fas fa-shopping-cart me-2"></i>Carrito de Compras
+                </h1>
+                <p class="mb-0">{{ pharmacy.name }} - Revisa tus productos</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{{ url_for('pharmacy_products', slug=pharmacy.slug) }}" class="btn btn-light">
+                    <i class="fas fa-arrow-left me-2"></i>Seguir Comprando
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+    {% if cart_items %}
+    <div class="row">
+        <!-- Cart Items -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Productos en el Carrito ({{ cart_items|length }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for item in cart_items %}
+                    <div class="row align-items-center mb-3 pb-3 border-bottom">
+                        <div class="col-md-2">
+                            {% if item.product.image_url %}
+                                <img src="{{ item.product.image_url }}" class="img-fluid rounded" alt="{{ item.product.name }}">
+                            {% else %}
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 80px;">
+                                    <i class="fas fa-pills fa-2x text-muted"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="mb-1">{{ item.product.name }}</h6>
+                            <small class="text-muted">{{ item.product.description[:50] }}...</small>
+                            {% if item.product.category %}
+                            <br><span class="badge bg-secondary">{{ item.product.category }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-2">
+                            <span class="text-primary fw-bold">${{ "%.2f"|format(item.product.price) }}</span>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="input-group input-group-sm">
+                                <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity({{ item.product.id }}, -1)">-</button>
+                                <input type="number" class="form-control text-center" value="{{ item.quantity }}" min="1" max="{{ item.product.stock_quantity }}" 
+                                       onchange="updateQuantity({{ item.product.id }}, this.value - {{ item.quantity }})">
+                                <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity({{ item.product.id }}, 1)">+</button>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <span class="fw-bold">${{ "%.2f"|format(item.subtotal) }}</span>
+                        </div>
+                        <div class="col-md-1">
+                            <button class="btn btn-outline-danger btn-sm" onclick="removeFromCart({{ item.product.id }})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calculator me-2"></i>Resumen del Pedido
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal:</span>
+                        <span>${{ "%.2f"|format(total) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Envío:</span>
+                        <span class="text-success">Gratis</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-3">
+                        <strong>Total:</strong>
+                        <strong class="text-primary">${{ "%.2f"|format(total) }}</strong>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <a href="{{ url_for('pharmacy_checkout', slug=pharmacy.slug) }}" class="btn btn-success btn-lg">
+                            <i class="fas fa-credit-card me-2"></i>Proceder al Pago
+                        </a>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Tu pedido será procesado una vez que completes el checkout.
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pharmacy Info -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="fas fa-store me-2"></i>{{ pharmacy.name }}
+                    </h6>
+                    <p class="card-text small text-muted">{{ pharmacy.description }}</p>
+                    <div class="small text-muted">
+                        <div><i class="fas fa-map-marker-alt me-1"></i>{{ pharmacy.address }}</div>
+                        {% if pharmacy.phone %}
+                        <div><i class="fas fa-phone me-1"></i>{{ pharmacy.phone }}</div>
+                        {% endif %}
+                        {% if pharmacy.email %}
+                        <div><i class="fas fa-envelope me-1"></i>{{ pharmacy.email }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- Empty Cart -->
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="text-center py-5">
+                <i class="fas fa-shopping-cart fa-4x text-muted mb-4"></i>
+                <h3 class="text-muted mb-3">Tu carrito está vacío</h3>
+                <p class="text-muted mb-4">Agrega algunos productos para comenzar tu compra</p>
+                <a href="{{ url_for('pharmacy_products', slug=pharmacy.slug) }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-shopping-bag me-2"></i>Ver Productos
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateQuantity(productId, change) {
+    let newQuantity = 1;
+    
+    if (typeof change === 'number') {
+        // Button click (+ or -)
+        const input = document.querySelector(`input[onchange*="${productId}"]`);
+        newQuantity = parseInt(input.value) + change;
+    } else {
+        // Direct input change
+        newQuantity = parseInt(change);
+    }
+    
+    if (newQuantity < 1) newQuantity = 1;
+    
+    fetch(`/pharmacy/{{ pharmacy.slug }}/add_to_cart`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            quantity: newQuantity
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Reload page to update cart
+            location.reload();
+        } else {
+            alert('Error al actualizar la cantidad');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al actualizar la cantidad');
+    });
+}
+
+function removeFromCart(productId) {
+    if (confirm('¿Estás seguro de que quieres eliminar este producto del carrito?')) {
+        fetch(`/pharmacy/{{ pharmacy.slug }}/add_to_cart`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                product_id: productId,
+                quantity: 0
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Reload page to update cart
+                location.reload();
+            } else {
+                alert('Error al eliminar el producto');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al eliminar el producto');
+        });
+    }
+}
+</script>
+{% endblock %}

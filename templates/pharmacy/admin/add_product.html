@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Agregar Producto - {{ pharmacy.name }}{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="bg-primary text-white py-4">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="h2 mb-2">
+                    <i class="fas fa-plus me-2"></i>Agregar Nuevo Producto
+                </h1>
+                <p class="mb-0">{{ pharmacy.name }} - Gestión de inventario</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{{ url_for('pharmacy_admin_products', slug=pharmacy.slug) }}" class="btn btn-light">
+                    <i class="fas fa-arrow-left me-2"></i>Volver a Productos
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-pills me-2"></i>Información del Producto
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="row">
+                            <!-- Información Básica -->
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Nombre del Producto *</label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="sku" class="form-label">SKU (Código de Producto) *</label>
+                                    <input type="text" class="form-control" id="sku" name="sku" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="category" class="form-label">Categoría</label>
+                                    <select class="form-select" id="category" name="category">
+                                        <option value="">Seleccionar categoría</option>
+                                        {% for category in categories %}
+                                        <option value="{{ category.name }}">{{ category.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="price" class="form-label">Precio *</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="stock_quantity" class="form-label">Cantidad en Stock *</label>
+                                    <input type="number" class="form-control" id="stock_quantity" name="stock_quantity" min="0" required>
+                                </div>
+                            </div>
+                            
+                            <!-- Imagen del Producto -->
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="image" class="form-label">Imagen del Producto</label>
+                                    <div class="border rounded p-3 text-center" id="imagePreview">
+                                        <i class="fas fa-image fa-3x text-muted mb-2"></i>
+                                        <p class="text-muted mb-2">Vista previa de la imagen</p>
+                                        <input type="file" class="form-control" id="image" name="image" accept="image/*" onchange="previewImage(this)">
+                                    </div>
+                                    <small class="text-muted">
+                                        Formatos permitidos: PNG, JPG, JPEG, GIF, WEBP. Tamaño máximo: 5MB
+                                    </small>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Descripción</label>
+                                    <textarea class="form-control" id="description" name="description" rows="4" placeholder="Describe el producto..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('pharmacy_admin_products', slug=pharmacy.slug) }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Guardar Producto
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewImage(input) {
+    const preview = document.getElementById('imagePreview');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            preview.innerHTML = `
+                <img src="${e.target.result}" class="img-fluid rounded mb-2" style="max-height: 200px;">
+                <p class="text-muted mb-0">${input.files[0].name}</p>
+            `;
+        };
+        
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        preview.innerHTML = `
+            <i class="fas fa-image fa-3x text-muted mb-2"></i>
+            <p class="text-muted mb-2">Vista previa de la imagen</p>
+        `;
+    }
+}
+
+// Validación del formulario
+document.querySelector('form').addEventListener('submit', function(e) {
+    const name = document.getElementById('name').value.trim();
+    const sku = document.getElementById('sku').value.trim();
+    const price = document.getElementById('price').value;
+    const stock = document.getElementById('stock_quantity').value;
+    
+    if (!name || !sku || !price || !stock) {
+        e.preventDefault();
+        alert('Por favor, completa todos los campos requeridos.');
+        return;
+    }
+    
+    if (parseFloat(price) < 0) {
+        e.preventDefault();
+        alert('El precio no puede ser negativo.');
+        return;
+    }
+    
+    if (parseInt(stock) < 0) {
+        e.preventDefault();
+        alert('La cantidad en stock no puede ser negativa.');
+        return;
+    }
+});
+
+// Auto-generar SKU si está vacío
+document.getElementById('name').addEventListener('blur', function() {
+    const skuField = document.getElementById('sku');
+    if (!skuField.value.trim()) {
+        const name = this.value.trim();
+        if (name) {
+            const sku = name.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 8);
+            skuField.value = sku;
+        }
+    }
+});
+</script>
+{% endblock %}

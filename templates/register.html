@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+
+{% block title %}Registrarse - DimaFarm{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow">
+            <div class="card-header text-center bg-success text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-user-plus me-2"></i>Crear Cuenta
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('register') }}" id="registerForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="name" class="form-label">Nombre Completo *</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                                <input type="text" class="form-control" id="name" name="name" 
+                                       required placeholder="Tu nombre completo">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">Email *</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       required placeholder="tu@email.com">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="password" class="form-label">Contraseña *</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                                <input type="password" class="form-control" id="password" name="password" 
+                                       required placeholder="Mínimo 8 caracteres">
+                            </div>
+                            <div class="form-text">
+                                <small>La contraseña debe tener al menos 8 caracteres</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="confirm_password" class="form-label">Confirmar Contraseña *</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" 
+                                       required placeholder="Repite tu contraseña">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Teléfono</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-phone"></i>
+                            </span>
+                            <input type="tel" class="form-control" id="phone" name="phone" 
+                                   placeholder="+1234567890">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Dirección</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </span>
+                            <textarea class="form-control" id="address" name="address" 
+                                      rows="2" placeholder="Tu dirección de residencia"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
+                        <label class="form-check-label" for="terms">
+                            Acepto los <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">términos y condiciones</a> *
+                        </label>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="newsletter" name="newsletter">
+                        <label class="form-check-label" for="newsletter">
+                            Quiero recibir notificaciones sobre ofertas y novedades
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success w-100 mb-3">
+                        <i class="fas fa-user-plus me-2"></i>Crear Cuenta
+                    </button>
+                </form>
+                
+                <hr>
+                
+                <div class="text-center">
+                    <p class="mb-2">¿Ya tienes una cuenta?</p>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Benefits Section -->
+        <div class="card mt-3">
+            <div class="card-body">
+                <h6><i class="fas fa-star me-2 text-warning"></i>Beneficios de registrarte</h6>
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>Acceso rápido a tus pedidos
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>Historial de compras
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>Ofertas exclusivas
+                    </li>
+                    <li class="mb-0">
+                        <i class="fas fa-check text-success me-2"></i>Envío prioritario
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Terms and Conditions Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Términos y Condiciones</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>1. Aceptación de los Términos</h6>
+                <p>Al registrarte en DimaFarm, aceptas estos términos y condiciones de uso.</p>
+                
+                <h6>2. Uso del Servicio</h6>
+                <p>DimaFarm es una plataforma que conecta clientes con farmacias para la compra de medicamentos y productos farmacéuticos.</p>
+                
+                <h6>3. Privacidad</h6>
+                <p>Tu información personal será tratada de acuerdo con nuestra política de privacidad.</p>
+                
+                <h6>4. Responsabilidades</h6>
+                <p>Los usuarios son responsables de proporcionar información veraz y de usar el servicio de manera responsable.</p>
+                
+                <h6>5. Modificaciones</h6>
+                <p>Nos reservamos el derecho de modificar estos términos en cualquier momento.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Entendido</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('registerForm');
+    const nameInput = document.getElementById('name');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirm_password');
+    const phoneInput = document.getElementById('phone');
+    const termsCheckbox = document.getElementById('terms');
+    
+    // Form validation
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        
+        // Reset previous validation states
+        [nameInput, emailInput, passwordInput, confirmPasswordInput].forEach(input => {
+            input.classList.remove('is-invalid');
+        });
+        
+        // Name validation
+        if (!nameInput.value.trim()) {
+            nameInput.classList.add('is-invalid');
+            isValid = false;
+        }
+        
+        // Email validation
+        if (!emailInput.value.trim()) {
+            emailInput.classList.add('is-invalid');
+            isValid = false;
+        } else if (!isValidEmail(emailInput.value)) {
+            emailInput.classList.add('is-invalid');
+            isValid = false;
+        }
+        
+        // Password validation
+        if (!passwordInput.value.trim()) {
+            passwordInput.classList.add('is-invalid');
+            isValid = false;
+        } else if (passwordInput.value.length < 8) {
+            passwordInput.classList.add('is-invalid');
+            isValid = false;
+        }
+        
+        // Confirm password validation
+        if (!confirmPasswordInput.value.trim()) {
+            confirmPasswordInput.classList.add('is-invalid');
+            isValid = false;
+        } else if (passwordInput.value !== confirmPasswordInput.value) {
+            confirmPasswordInput.classList.add('is-invalid');
+            isValid = false;
+        }
+        
+        // Terms validation
+        if (!termsCheckbox.checked) {
+            termsCheckbox.classList.add('is-invalid');
+            isValid = false;
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Por favor, corrige los errores en el formulario.');
+        }
+    });
+    
+    // Real-time validation
+    nameInput.addEventListener('blur', function() {
+        if (!this.value.trim()) {
+            this.classList.add('is-invalid');
+        } else {
+            this.classList.remove('is-invalid');
+        }
+    });
+    
+    emailInput.addEventListener('blur', function() {
+        if (!this.value.trim()) {
+            this.classList.add('is-invalid');
+        } else if (!isValidEmail(this.value)) {
+            this.classList.add('is-invalid');
+        } else {
+            this.classList.remove('is-invalid');
+        }
+    });
+    
+    passwordInput.addEventListener('blur', function() {
+        if (!this.value.trim()) {
+            this.classList.add('is-invalid');
+        } else if (this.value.length < 8) {
+            this.classList.add('is-invalid');
+        } else {
+            this.classList.remove('is-invalid');
+        }
+    });
+    
+    confirmPasswordInput.addEventListener('blur', function() {
+        if (!this.value.trim()) {
+            this.classList.add('is-invalid');
+        } else if (passwordInput.value !== this.value) {
+            this.classList.add('is-invalid');
+        } else {
+            this.classList.remove('is-invalid');
+        }
+    });
+    
+    // Phone number formatting
+    phoneInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 0) {
+            if (value.length <= 3) {
+                value = '+' + value;
+            } else if (value.length <= 6) {
+                value = '+' + value.slice(0, 3) + ' ' + value.slice(3);
+            } else if (value.length <= 10) {
+                value = '+' + value.slice(0, 3) + ' ' + value.slice(3, 6) + ' ' + value.slice(6);
+            } else {
+                value = '+' + value.slice(0, 3) + ' ' + value.slice(3, 6) + ' ' + value.slice(6, 10);
+            }
+        }
+        e.target.value = value;
+    });
+    
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="200" fill="#e8f5e8" stroke="#4caf50" stroke-width="2"/>
+  <text x="150" y="100" font-family="Arial, sans-serif" font-size="20" text-anchor="middle" fill="#4caf50">
+    IMAGEN DE PRUEBA
+  </text>
+  <text x="150" y="130" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#666">
+    Subida manual
+  </text>
+</svg>

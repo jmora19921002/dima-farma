@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Farmacias | DimaFarm{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2">
+            <i class="fas fa-clinic-medical me-2"></i>Gestión de Farmacias
+        </h1>
+        <p class="text-muted">Administra todas las farmacias del sistema</p>
+    </div>
+</div>
+
+<!-- Add New Pharmacy Button -->
+<div class="row mb-4">
+    <div class="col-12">
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addPharmacyModal">
+            <i class="fas fa-plus me-2"></i>Agregar Nueva Farmacia
+        </button>
+    </div>
+</div>
+
+<!-- Pharmacies Table -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-list me-2"></i>Lista de Farmacias
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Slug</th>
+                        <th>Dirección</th>
+                        <th>Teléfono</th>
+                        <th>Email</th>
+                        <th>Estado</th>
+                        <th>Color Tema</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pharmacy in pharmacies %}
+                    <tr>
+                        <td>{{ pharmacy.id }}</td>
+                        <td>
+                            <strong>{{ pharmacy.name }}</strong>
+                            {% if pharmacy.logo_url %}
+                                <img src="{{ pharmacy.logo_url }}" alt="Logo" class="ms-2" style="width: 30px; height: 30px; object-fit: cover;">
+                            {% endif %}
+                        </td>
+                        <td>
+                            <code>{{ pharmacy.slug }}</code>
+                        </td>
+                        <td>{{ pharmacy.address }}</td>
+                        <td>{{ pharmacy.phone or 'N/A' }}</td>
+                        <td>{{ pharmacy.email or 'N/A' }}</td>
+                        <td>
+                            {% if pharmacy.is_active %}
+                                <span class="badge bg-success">Activa</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactiva</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="color-preview me-2" style="width: 20px; height: 20px; background-color: {{ pharmacy.theme_color }}; border-radius: 3px;"></div>
+                                <code>{{ pharmacy.theme_color }}</code>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('pharmacy_home', slug=pharmacy.slug) }}" class="btn btn-sm btn-outline-primary" title="Ver sitio">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                                <a href="{{ url_for('pharmacy_admin_login', slug=pharmacy.slug) }}" class="btn btn-sm btn-outline-info" title="Admin">
+                                    <i class="fas fa-cog"></i>
+                                </a>
+                                <a href="{{ url_for('admin_pharmacy_users', pharmacy_id=pharmacy.id) }}" class="btn btn-sm btn-outline-secondary" title="Usuarios">
+                                    <i class="fas fa-users"></i>
+                                </a>
+                                <a href="{{ url_for('toggle_pharmacy_status', pharmacy_id=pharmacy.id) }}" 
+                                   class="btn btn-sm btn-{{ 'outline-warning' if pharmacy.is_active else 'outline-success' }}"
+                                   title="{{ 'Desactivar' if pharmacy.is_active else 'Activar' }}"
+                                   onclick="return confirm('¿Estás seguro de {{ 'desactivar' if pharmacy.is_active else 'activar' }} esta farmacia?')">
+                                    <i class="fas fa-{{ 'pause' if pharmacy.is_active else 'play' }}"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Pharmacy Modal -->
+<div class="modal fade" id="addPharmacyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus me-2"></i>Agregar Nueva Farmacia
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('admin_pharmacies') }}">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="name" class="form-label">Nombre de la Farmacia *</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="slug" class="form-label">Slug (URL) *</label>
+                            <input type="text" class="form-control" id="slug" name="slug" required>
+                            <small class="form-text text-muted">Ejemplo: farmacia-central</small>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="address" class="form-label">Dirección *</label>
+                            <input type="text" class="form-control" id="address" name="address" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="phone" class="form-label">Teléfono</label>
+                            <input type="tel" class="form-control" id="phone" name="phone">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="theme_color" class="form-label">Color del Tema</label>
+                            <input type="color" class="form-control form-control-color" id="theme_color" name="theme_color" value="#007bff">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save me-2"></i>Guardar Farmacia
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-generate slug from name
+document.getElementById('name').addEventListener('input', function() {
+    const name = this.value;
+    const slug = name.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim('-');
+    document.getElementById('slug').value = slug;
+});
+</script>
+{% endblock %}

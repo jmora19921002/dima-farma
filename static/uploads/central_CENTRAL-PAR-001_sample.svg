@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="200" fill="#f8f9fa" stroke="#dee2e6" stroke-width="2"/>
+  <text x="150" y="80" font-family="Arial, sans-serif" font-size="24" text-anchor="middle" fill="#6c757d">
+    Paracetamol 500mg
+  </text>
+  <text x="150" y="110" font-family="Arial, sans-serif" font-size="16" text-anchor="middle" fill="#6c757d">
+    $5.99
+  </text>
+  <text x="150" y="130" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#6c757d">
+    Stock: 100
+  </text>
+  <circle cx="150" cy="160" r="15" fill="#007bff"/>
+  <text x="150" y="165" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="white">
+    💊
+  </text>
+</svg>

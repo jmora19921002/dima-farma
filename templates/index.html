@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}DimaFarm - Farmacias Disponibles{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="jumbotron bg-light p-5 rounded">
+            <h1 class="display-4 text-primary">
+                <i class="fas fa-pills me-3"></i>Bienvenido a DimaFarm
+            </h1>
+            <p class="lead">Descubre y compra medicamentos de las mejores farmacias de tu zona</p>
+            <hr class="my-4">
+            <p>Selecciona una farmacia para ver sus productos disponibles y realizar tu compra.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">
+            <i class="fas fa-clinic-medical me-2"></i>Farmacias Disponibles
+        </h2>
+    </div>
+</div>
+
+{% if pharmacies %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for pharmacy in pharmacies %}
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                {% if pharmacy.logo_url %}
+                <img src="{{ url_for('static', filename='images/' + pharmacy.logo_url) }}" 
+                     class="card-img-top" alt="{{ pharmacy.name }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                     style="height: 200px;">
+                    <i class="fas fa-clinic-medical fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+                
+                <div class="card-body">
+                    <h5 class="card-title text-primary">{{ pharmacy.name }}</h5>
+                    <p class="card-text">{{ pharmacy.description or 'Sin descripción disponible' }}</p>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            <i class="fas fa-map-marker-alt me-1"></i>{{ pharmacy.address }}
+                        </small>
+                    </div>
+                    
+                    {% if pharmacy.phone %}
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            <i class="fas fa-phone me-1"></i>{{ pharmacy.phone }}
+                        </small>
+                    </div>
+                    {% endif %}
+                    
+                    {% if pharmacy.email %}
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            <i class="fas fa-envelope me-1"></i>{{ pharmacy.email }}
+                        </small>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="card-footer bg-transparent">
+                    <a href="{{ url_for('pharmacy_products', pharmacy_id=pharmacy.id) }}" 
+                       class="btn btn-primary w-100">
+                        <i class="fas fa-shopping-cart me-1"></i>Ver Productos
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="fas fa-info-circle fa-2x mb-3"></i>
+                <h4>No hay farmacias disponibles en este momento</h4>
+                <p>Por favor, vuelve más tarde o contacta con el administrador del sistema.</p>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<!-- Features Section -->
+<div class="row mt-5">
+    <div class="col-12">
+        <h2 class="text-center mb-4">¿Por qué elegir DimaFarm?</h2>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    <div class="col text-center">
+        <div class="p-4">
+            <i class="fas fa-shield-alt fa-3x text-success mb-3"></i>
+            <h5>Productos Garantizados</h5>
+            <p class="text-muted">Todos nuestros productos son auténticos y cumplen con los estándares de calidad.</p>
+        </div>
+    </div>
+    
+    <div class="col text-center">
+        <div class="p-4">
+            <i class="fas fa-truck fa-3x text-primary mb-3"></i>
+            <h5>Entrega Rápida</h5>
+            <p class="text-muted">Recibe tus medicamentos en la comodidad de tu hogar en tiempo récord.</p>
+        </div>
+    </div>
+    
+    <div class="col text-center">
+        <div class="p-4">
+            <i class="fas fa-headset fa-3x text-warning mb-3"></i>
+            <h5>Soporte 24/7</h5>
+            <p class="text-muted">Nuestro equipo de soporte está disponible para ayudarte en cualquier momento.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

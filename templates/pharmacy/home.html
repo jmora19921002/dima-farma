@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block title %}{{ pharmacy.name }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section" style="background: linear-gradient(135deg, {{ pharmacy.theme_color }} 0%, {{ pharmacy.theme_color }}dd 100%);">
+    <div class="container">
+        <div class="row align-items-center py-5">
+            <div class="col-md-8">
+                <h1 class="display-4 text-white mb-3">
+                    <i class="fas fa-clinic-medical me-3"></i>{{ pharmacy.name }}
+                </h1>
+                <p class="lead text-white-50 mb-4">{{ pharmacy.description }}</p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{{ url_for('pharmacy_products', slug=pharmacy.slug) }}" class="btn btn-light btn-lg">
+                        <i class="fas fa-shopping-cart me-2"></i>Ver Productos
+                    </a>
+                    <a href="#contact" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-phone me-2"></i>Contactar
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                {% if pharmacy.logo_url %}
+                    <img src="{{ pharmacy.logo_url }}" alt="{{ pharmacy.name }}" class="img-fluid rounded" style="max-height: 200px;">
+                {% else %}
+                    <div class="bg-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 200px; height: 200px;">
+                        <i class="fas fa-clinic-medical fa-4x" style="color: {{ pharmacy.theme_color }};"></i>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Products -->
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="text-center mb-4">
+                <i class="fas fa-star me-2"></i>Productos Destacados
+            </h2>
+        </div>
+    </div>
+    
+    <div class="row">
+        {% for product in products[:6] %}
+        <div class="col-md-4 col-lg-3 mb-4">
+            <div class="card h-100 shadow-sm">
+                {% if product.image_url %}
+                    <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <i class="fas fa-pills fa-3x text-muted"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text text-muted">{{ product.description[:100] }}{% if product.description|length > 100 %}...{% endif %}</p>
+                    <div class="mt-auto">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="h5 text-primary mb-0">${{ "%.2f"|format(product.price) }}</span>
+                            <span class="badge bg-{% if product.stock_quantity > 10 %}success{% elif product.stock_quantity > 0 %}warning{% else %}danger{% endif %}">
+                                {% if product.stock_quantity > 10 %}
+                                    <i class="fas fa-check me-1"></i>Disponible
+                                {% elif product.stock_quantity > 0 %}
+                                    <i class="fas fa-exclamation-triangle me-1"></i>Pocas unidades
+                                {% else %}
+                                    <i class="fas fa-times me-1"></i>Agotado
+                                {% endif %}
+                            </span>
+                        </div>
+                        <button class="btn btn-primary w-100" onclick="addToCart({{ product.id }})" {% if product.stock_quantity == 0 %}disabled{% endif %}>
+                            <i class="fas fa-cart-plus me-2"></i>Agregar al Carrito
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% if products|length > 6 %}
+    <div class="text-center mt-4">
+        <a href="{{ url_for('pharmacy_products', slug=pharmacy.slug) }}" class="btn btn-outline-primary btn-lg">
+            <i class="fas fa-eye me-2"></i>Ver Todos los Productos
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Categories -->
+<div class="bg-light py-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2 class="text-center mb-4">
+                    <i class="fas fa-tags me-2"></i>Categorías
+                </h2>
+            </div>
+        </div>
+        
+        <div class="row">
+            {% set categories = products|map(attribute='category')|unique|list %}
+            {% for category in categories[:4] %}
+            <div class="col-md-3 mb-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <i class="fas fa-pills fa-2x text-primary mb-3"></i>
+                        <h5 class="card-title">{{ category }}</h5>
+                        <p class="card-text text-muted">
+                            {{ products|selectattr('category', 'equalto', category)|list|length }} productos
+                        </p>
+                        <a href="{{ url_for('pharmacy_products', slug=pharmacy.slug) }}?category={{ category }}" class="btn btn-outline-primary">
+                            Ver Productos
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Contact Information -->
+<div class="container py-5" id="contact">
+    <div class="row">
+        <div class="col-md-6">
+            <h3 class="mb-4">
+                <i class="fas fa-info-circle me-2"></i>Información de Contacto
+            </h3>
+            <div class="row">
+                <div class="col-12 mb-3">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-map-marker-alt fa-2x text-primary me-3"></i>
+                        <div>
+                            <h6 class="mb-1">Dirección</h6>
+                            <p class="mb-0 text-muted">{{ pharmacy.address }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 mb-3">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-phone fa-2x text-primary me-3"></i>
+                        <div>
+                            <h6 class="mb-1">Teléfono</h6>
+                            <p class="mb-0 text-muted">{{ pharmacy.phone or 'No disponible' }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 mb-3">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-envelope fa-2x text-primary me-3"></i>
+                        <div>
+                            <h6 class="mb-1">Email</h6>
+                            <p class="mb-0 text-muted">{{ pharmacy.email or 'No disponible' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <h3 class="mb-4">
+                <i class="fas fa-clock me-2"></i>Horarios de Atención
+            </h3>
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Lunes - Viernes</strong><br>
+                            <span class="text-muted">8:00 AM - 8:00 PM</span>
+                        </div>
+                        <div class="col-6">
+                            <strong>Sábado</strong><br>
+                            <span class="text-muted">8:00 AM - 6:00 PM</span>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Domingo</strong><br>
+                            <span class="text-muted">9:00 AM - 2:00 PM</span>
+                        </div>
+                        <div class="col-6">
+                            <strong>Emergencias</strong><br>
+                            <span class="text-danger">24/7</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function addToCart(productId) {
+    fetch(`/pharmacy/{{ pharmacy.slug }}/add_to_cart`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            quantity: 1
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            const toast = document.createElement('div');
+            toast.className = 'toast show position-fixed';
+            toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+            toast.innerHTML = `
+                <div class="toast-header bg-success text-white">
+                    <i class="fas fa-check me-2"></i>
+                    <strong class="me-auto">Producto agregado</strong>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                </div>
+                <div class="toast-body">
+                    El producto se agregó correctamente al carrito.
+                </div>
+            `;
+            document.body.appendChild(toast);
+            
+            // Remove toast after 3 seconds
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        } else {
+            alert('Error al agregar el producto al carrito');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al agregar el producto al carrito');
+    });
+}
+</script>
+{% endblock %}

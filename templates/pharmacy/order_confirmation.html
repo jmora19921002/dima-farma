@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Confirmación de Pedido - {{ pharmacy.name }}{% endblock %}
+
+{% block content %}
+<!-- Success Header -->
+<div class="bg-success text-white py-5">
+    <div class="container text-center">
+        <i class="fas fa-check-circle fa-4x mb-3"></i>
+        <h1 class="display-4 mb-3">¡Pedido Confirmado!</h1>
+        <p class="lead mb-0">Tu pedido ha sido procesado exitosamente</p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Order Details -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-receipt me-2"></i>Detalles del Pedido
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Número de Pedido:</strong><br>
+                            <span class="text-primary">{{ order.order_number }}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Fecha del Pedido:</strong><br>
+                            {{ order.created_at.strftime('%d/%m/%Y %H:%M') }}
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Estado:</strong><br>
+                            {% if order.status == 'pending' %}
+                                <span class="badge bg-warning">Pendiente</span>
+                            {% elif order.status == 'processing' %}
+                                <span class="badge bg-info">Procesando</span>
+                            {% elif order.status == 'completed' %}
+                                <span class="badge bg-success">Completado</span>
+                            {% elif order.status == 'cancelled' %}
+                                <span class="badge bg-danger">Cancelado</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Total:</strong><br>
+                            <span class="h5 text-primary mb-0">${{ "%.2f"|format(order.total_amount) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user me-2"></i>Información del Cliente
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <strong>Nombre:</strong><br>
+                            {{ order.customer_name }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Email:</strong><br>
+                            {{ order.customer_email }}
+                        </div>
+                    </div>
+                    {% if order.customer_phone %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <strong>Teléfono:</strong><br>
+                            {{ order.customer_phone }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Dirección:</strong><br>
+                            {{ order.customer_address }}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <strong>Dirección:</strong><br>
+                            {{ order.customer_address }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Order Items -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Productos del Pedido
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for item in order.items %}
+                    <div class="row align-items-center mb-3">
+                        <div class="col-md-2">
+                            {% if item.product.image_url %}
+                                <img src="{{ item.product.image_url }}" class="img-fluid rounded" alt="{{ item.product.name }}">
+                            {% else %}
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 60px;">
+                                    <i class="fas fa-pills text-muted"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="mb-1">{{ item.product.name }}</h6>
+                            <small class="text-muted">{{ item.product.description[:50] }}...</small>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <span class="text-muted">Cantidad: {{ item.quantity }}</span>
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <span class="fw-bold">${{ "%.2f"|format(item.price * item.quantity) }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Next Steps -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Próximos Pasos
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px;">
+                                <i class="fas fa-clock fa-2x text-primary"></i>
+                            </div>
+                            <h6>1. Procesamiento</h6>
+                            <small class="text-muted">Tu pedido será revisado y preparado</small>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px;">
+                                <i class="fas fa-truck fa-2x text-primary"></i>
+                            </div>
+                            <h6>2. Entrega</h6>
+                            <small class="text-muted">Te contactaremos para coordinar la entrega</small>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px;">
+                                <i class="fas fa-check fa-2x text-primary"></i>
+                            </div>
+                            <h6>3. Pago</h6>
+                            <small class="text-muted">Pagarás cuando recibas tu pedido</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-phone me-2"></i>Información de Contacto
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>{{ pharmacy.name }}</h6>
+                            <p class="text-muted">{{ pharmacy.description }}</p>
+                            <div class="small text-muted">
+                                <div><i class="fas fa-map-marker-alt me-1"></i>{{ pharmacy.address }}</div>
+                                {% if pharmacy.phone %}
+                                <div><i class="fas fa-phone me-1"></i>{{ pharmacy.phone }}</div>
+                                {% endif %}
+                                {% if pharmacy.email %}
+                                <div><i class="fas fa-envelope me-1"></i>{{ pharmacy.email }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Horarios de Atención</h6>
+                            <div class="small text-muted">
+                                <div><strong>Lunes - Viernes:</strong> 8:00 AM - 8:00 PM</div>
+                                <div><strong>Sábado:</strong> 8:00 AM - 6:00 PM</div>
+                                <div><strong>Domingo:</strong> 9:00 AM - 2:00 PM</div>
+                                <div><strong>Emergencias:</strong> 24/7</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="text-center mt-4">
+                <a href="{{ url_for('pharmacy_home', slug=pharmacy.slug) }}" class="btn btn-primary me-2">
+                    <i class="fas fa-home me-2"></i>Volver al Inicio
+                </a>
+                <a href="{{ url_for('pharmacy_products', slug=pharmacy.slug) }}" class="btn btn-outline-primary">
+                    <i class="fas fa-shopping-bag me-2"></i>Seguir Comprando
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - DimaFarm{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Inicio</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('view_cart') }}">Carrito</a></li>
+                <li class="breadcrumb-item active">Checkout</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="fas fa-credit-card me-2 text-primary"></i>Finalizar Compra
+        </h1>
+    </div>
+</div>
+
+{% if cart_items %}
+    <form method="POST" action="{{ url_for('checkout') }}">
+        <div class="row">
+            <!-- Customer Information -->
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user me-2"></i>Información del Cliente
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="customer_name" class="form-label">Nombre Completo *</label>
+                                <input type="text" class="form-control" id="customer_name" name="customer_name" 
+                                       required value="{{ current_user.name if current_user.is_authenticated else '' }}">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="customer_email" class="form-label">Email *</label>
+                                <input type="email" class="form-control" id="customer_email" name="customer_email" 
+                                       required value="{{ current_user.email if current_user.is_authenticated else '' }}">
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="customer_phone" class="form-label">Teléfono</label>
+                                <input type="tel" class="form-control" id="customer_phone" name="customer_phone" 
+                                       placeholder="+1234567890">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="customer_address" class="form-label">Dirección de Entrega *</label>
+                                <textarea class="form-control" id="customer_address" name="customer_address" 
+                                          rows="3" required placeholder="Ingresa tu dirección completa"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label for="delivery_notes" class="form-label">Notas de Entrega</label>
+                                <textarea class="form-control" id="delivery_notes" name="delivery_notes" 
+                                          rows="2" placeholder="Instrucciones especiales para la entrega"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payment Information -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-credit-card me-2"></i>Información de Pago
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="payment_method" class="form-label">Método de Pago *</label>
+                                <select class="form-select" id="payment_method" name="payment_method" required>
+                                    <option value="">Selecciona un método de pago</option>
+                                    <option value="cash">Efectivo contra entrega</option>
+                                    <option value="card">Tarjeta de crédito/débito</option>
+                                    <option value="transfer">Transferencia bancaria</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="card_number" class="form-label">Número de Tarjeta</label>
+                                <input type="text" class="form-control" id="card_number" name="card_number" 
+                                       placeholder="1234 5678 9012 3456" disabled>
+                                <small class="text-muted">Solo si pagas con tarjeta</small>
+                            </div>
+                        </div>
+                        
+                        <div class="row" id="card_fields" style="display: none;">
+                            <div class="col-md-4 mb-3">
+                                <label for="expiry_date" class="form-label">Fecha de Vencimiento</label>
+                                <input type="text" class="form-control" id="expiry_date" name="expiry_date" 
+                                       placeholder="MM/YY">
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="cvv" class="form-label">CVV</label>
+                                <input type="text" class="form-control" id="cvv" name="cvv" 
+                                       placeholder="123">
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="cardholder_name" class="form-label">Nombre del Titular</label>
+                                <input type="text" class="form-control" id="cardholder_name" name="cardholder_name" 
+                                       placeholder="Como aparece en la tarjeta">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Summary -->
+            <div class="col-lg-4">
+                <div class="card sticky-top" style="top: 20px;">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-receipt me-2"></i>Resumen del Pedido
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Cart Items Summary -->
+                        <div class="mb-3">
+                            <h6>Productos:</h6>
+                            {% for item in cart_items %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <small>{{ item.product.name }}</small>
+                                    <br>
+                                    <small class="text-muted">Cantidad: {{ item.quantity }}</small>
+                                </div>
+                                <small class="text-success">${{ "%.2f"|format(item.subtotal) }}</small>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <hr>
+                        
+                        <!-- Totals -->
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                            <span>${{ "%.2f"|format(total) }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Envío:</span>
+                            <span class="text-success">Gratis</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Impuestos:</span>
+                            <span>$0.00</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-3">
+                            <strong>Total:</strong>
+                            <strong class="text-primary fs-5">${{ "%.2f"|format(total) }}</strong>
+                        </div>
+                        
+                        <!-- Hidden field for total amount -->
+                        <input type="hidden" name="total_amount" value="{{ total }}">
+                        
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary w-100 mb-2">
+                            <i class="fas fa-check me-2"></i>Confirmar Pedido
+                        </button>
+                        
+                        <a href="{{ url_for('view_cart') }}" class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-arrow-left me-2"></i>Volver al Carrito
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+{% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-warning text-center">
+                <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                <h4>No hay productos en el carrito</h4>
+                <p>Agrega algunos productos antes de proceder al checkout.</p>
+                <a href="{{ url_for('index') }}" class="btn btn-primary">
+                    <i class="fas fa-shopping-bag me-2"></i>Explorar Productos
+                </a>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentMethod = document.getElementById('payment_method');
+    const cardFields = document.getElementById('card_fields');
+    const cardInputs = cardFields.querySelectorAll('input');
+    
+    paymentMethod.addEventListener('change', function() {
+        if (this.value === 'card') {
+            cardFields.style.display = 'block';
+            cardInputs.forEach(input => input.disabled = false);
+        } else {
+            cardFields.style.display = 'none';
+            cardInputs.forEach(input => input.disabled = true);
+        }
+    });
+    
+    // Card number formatting
+    const cardNumber = document.getElementById('card_number');
+    cardNumber.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+        let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+        e.target.value = formattedValue;
+    });
+    
+    // Expiry date formatting
+    const expiryDate = document.getElementById('expiry_date');
+    expiryDate.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length >= 2) {
+            value = value.slice(0, 2) + '/' + value.slice(2, 4);
+        }
+        e.target.value = value;
+    });
+    
+    // CVV validation
+    const cvv = document.getElementById('cvv');
+    cvv.addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
+    });
+    
+    // Form validation
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const requiredFields = form.querySelectorAll('[required]');
+        let isValid = true;
+        
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Por favor, completa todos los campos requeridos.');
+        }
+    });
+});
+</script>
+{% endblock %}
