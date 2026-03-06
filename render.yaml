@@ -6,5 +6,19 @@ services:
     startCommand: "gunicorn app:app"
     autoDeploy: true
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_SSL_MODE
+        value: REQUIRED
       - key: PORT
         value: 10000
