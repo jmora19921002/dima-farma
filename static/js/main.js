@@ -18,8 +18,16 @@ document.addEventListener('DOMContentLoaded', function() {
     var alerts = document.querySelectorAll('.alert');
     alerts.forEach(function(alert) {
         setTimeout(function() {
-            var bsAlert = new bootstrap.Alert(alert);
-            bsAlert.close();
+            if (alert && document.body.contains(alert)) {
+                try {
+                    var bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+                    if (bsAlert) {
+                        bsAlert.close();
+                    }
+                } catch (e) {
+                    console.warn('Error auto-closing alert:', e);
+                }
+            }
         }, 5000);
     });
     
@@ -252,8 +260,19 @@ window.DimaFarm = {
         document.body.appendChild(alertDiv);
         
         setTimeout(function() {
-            var bsAlert = new bootstrap.Alert(alertDiv);
-            bsAlert.close();
+            if (alertDiv && document.body.contains(alertDiv)) {
+                try {
+                    var bsAlert = bootstrap.Alert.getOrCreateInstance(alertDiv);
+                    if (bsAlert) {
+                        bsAlert.close();
+                    }
+                } catch (e) {
+                    // Fallback to manual removal if bootstrap instance fails
+                    if (alertDiv.parentNode) {
+                        alertDiv.parentNode.removeChild(alertDiv);
+                    }
+                }
+            }
         }, 5000);
     },
     
