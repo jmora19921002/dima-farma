@@ -611,9 +611,12 @@ def uploaded_file(filename):
     return send_from_directory('static/uploads', filename)
 
 @app.route('/logout')
+@app.route('/pharmacy/<slug>/logout')
 @login_required
-def logout():
+def logout(slug=None):
     logout_user()
+    if slug:
+        return redirect(url_for('pharmacy_home', slug=slug))
     return redirect(url_for('admin_home'))
 
 @app.errorhandler(404)
