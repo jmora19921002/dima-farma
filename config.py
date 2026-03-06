@@ -3,10 +3,11 @@ from datetime import timedelta
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
-    DB_USER = os.environ.get('DB_USER') or 'avnadmin'
-    DB_PASSWORD = os.environ.get('DB_PASSWORD') or 'AVNS_7GkdzQe0DuO_1rwhSq9'
-    DB_HOST = os.environ.get('DB_HOST') or 'dimafarm-javiersopor9-20f5.i.aivencloud.com'
-    DB_PORT = os.environ.get('DB_PORT') or '11906'
+    # Configuración de Base de Datos vía Variables de Entorno
+    DB_USER = os.environ.get('DB_USER') or 'root'
+    DB_PASSWORD = os.environ.get('DB_PASSWORD') or ''
+    DB_HOST = os.environ.get('DB_HOST') or 'localhost'
+    DB_PORT = os.environ.get('DB_PORT') or '3306'
     DB_NAME = os.environ.get('DB_NAME') or 'dimafarm'
     DB_SSL_MODE = os.environ.get('DB_SSL_MODE') or 'REQUIRED'
 
