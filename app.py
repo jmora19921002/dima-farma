@@ -175,6 +175,72 @@ def toggle_pharmacy_status(pharmacy_id):
     flash(f'Farmacia {status} exitosamente!', 'success')
     return redirect(url_for('admin_pharmacies'))
 
+@app.route('/admin/pharmacy/<int:pharmacy_id>/edit', methods=['GET', 'POST'])
+@login_required
+def admin_edit_pharmacy(pharmacy_id):
+    if current_user.role != 'server_admin':
+        flash('Acceso denegado', 'error')
+        return redirect(url_for('admin_login'))
+    
+    pharmacy = Pharmacy.query.get_or_404(pharmacy_id)
+    
+    if request.method == 'POST':
+        try:
+            name = request.form['name']
+            slug = request.form['slug']
+            description = request.form['description']
+            address = request.form['address']
+            phone = request.form['phone']
+            email = request.form['email']
+            theme_color = request.form['theme_color']
+            
+            # Verificar si el slug ya existe (en otra farmacia)
+            existing_pharmacy = Pharmacy.query.filter_by(slug=slug).first()
+            if existing_pharmacy and existing_pharmacy.id != pharmacy.id:
+                flash(f'El slug "{slug}" ya está en uso por otra farmacia.', 'error')
+                return redirect(url_for('admin_pharmacies'))
+            
+            # Manejo del Logo
+            if 'logo' in request.files:
+                file = request.files['logo']
+                if file and file.filename != '':
+                    allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+                    if '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in allowed_extensions:
+                        # Eliminar logo anterior si existe
+                        if pharmacy.logo_url:
+                            old_filename = pharmacy.logo_url.split('/')[-1]
+                            old_filepath = os.path.join(app.config['UPLOAD_FOLDER'], old_filename)
+                            if os.path.exists(old_filepath):
+                                try:
+                                    os.remove(old_filepath)
+                                except Exception as e:
+                                    print(f"Error al eliminar logo anterior: {e}")
+                        
+                        filename = secure_filename(f"logo_{slug}_{file.filename}")
+                        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                        file.save(filepath)
+                        pharmacy.logo_url = f"/static/uploads/{filename}"
+            
+            # Actualizar datos de la farmacia
+            pharmacy.name = name
+            pharmacy.slug = slug
+            pharmacy.description = description
+            pharmacy.address = address
+            pharmacy.phone = phone
+            pharmacy.email = email
+            pharmacy.theme_color = theme_color
+            
+            db.session.commit()
+            flash(f'Farmacia "{name}" actualizada exitosamente.', 'success')
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error al actualizar la farmacia: {str(e)}', 'error')
+        
+        return redirect(url_for('admin_pharmacies'))
+    
+    return redirect(url_for('admin_pharmacies'))
+
 @app.route('/admin/pharmacy/<int:pharmacy_id>/users')
 @login_required
 def admin_pharmacy_users(pharmacy_id):

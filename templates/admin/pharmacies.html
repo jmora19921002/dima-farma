@@ -90,6 +90,15 @@
                                     class="btn btn-sm btn-outline-secondary" title="Usuarios">
                                     <i class="fas fa-users"></i>
                                 </a>
+                                <button class="btn btn-sm btn-outline-warning btn-edit-pharmacy" title="Editar"
+                                    data-bs-toggle="modal" data-bs-target="#editPharmacyModal"
+                                    data-id="{{ pharmacy.id }}" data-name="{{ pharmacy.name }}"
+                                    data-slug="{{ pharmacy.slug }}" data-description="{{ pharmacy.description or '' }}"
+                                    data-address="{{ pharmacy.address }}" data-phone="{{ pharmacy.phone or '' }}"
+                                    data-email="{{ pharmacy.email or '' }}"
+                                    data-theme_color="{{ pharmacy.theme_color }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
                                 <a href="{{ url_for('toggle_pharmacy_status', pharmacy_id=pharmacy.id) }}"
                                     class="btn btn-sm btn-{{ 'outline-warning' if pharmacy.is_active else 'outline-success' }}"
                                     title="{{ 'Desactivar' if pharmacy.is_active else 'Activar' }}"
@@ -174,6 +183,75 @@
         </div>
     </div>
 </div>
+</div>
+
+<!-- Edit Pharmacy Modal -->
+<div class="modal fade" id="editPharmacyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit me-2"></i>Editar Farmacia
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editPharmacyForm" method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="edit_name" class="form-label">Nombre de la Farmacia *</label>
+                            <input type="text" class="form-control" id="edit_name" name="name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="edit_slug" class="form-label">Slug (URL) *</label>
+                            <input type="text" class="form-control" id="edit_slug" name="slug" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="edit_description" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="edit_description" name="description" rows="3"></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="edit_address" class="form-label">Dirección *</label>
+                            <input type="text" class="form-control" id="edit_address" name="address" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="edit_phone" class="form-label">Teléfono</label>
+                            <input type="tel" class="form-control" id="edit_phone" name="phone">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="edit_email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="edit_email" name="email">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="edit_theme_color" class="form-label">Color del Tema</label>
+                            <input type="color" class="form-control form-control-color" id="edit_theme_color"
+                                name="theme_color">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="edit_logo" class="form-label">Logo de la Farmacia</label>
+                        <input type="file" class="form-control" id="edit_logo" name="logo" accept="image/*">
+                        <small class="form-text text-muted">Sube un nuevo logo solo si deseas cambiar el actual</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Actualizar Farmacia
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -187,6 +265,30 @@
             .replace(/-+/g, '-')
             .trim('-');
         document.getElementById('slug').value = slug;
+    });
+
+    // Populate Edit Modal
+    document.querySelectorAll('.btn-edit-pharmacy').forEach(button => {
+        button.addEventListener('click', function () {
+            const id = this.getAttribute('data-id');
+            const name = this.getAttribute('data-name');
+            const slug = this.getAttribute('data-slug');
+            const description = this.getAttribute('data-description');
+            const address = this.getAttribute('data-address');
+            const phone = this.getAttribute('data-phone');
+            const email = this.getAttribute('data-email');
+            const theme_color = this.getAttribute('data-theme_color');
+
+            document.getElementById('edit_name').value = name;
+            document.getElementById('edit_slug').value = slug;
+            document.getElementById('edit_description').value = description;
+            document.getElementById('edit_address').value = address;
+            document.getElementById('edit_phone').value = phone;
+            document.getElementById('edit_email').value = email;
+            document.getElementById('edit_theme_color').value = theme_color;
+
+            document.getElementById('editPharmacyForm').action = `/admin/pharmacy/${id}/edit`;
+        });
     });
 </script>
 {% endblock %}
