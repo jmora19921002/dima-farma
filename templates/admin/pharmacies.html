@@ -51,7 +51,8 @@
                         <td>
                             <strong>{{ pharmacy.name }}</strong>
                             {% if pharmacy.logo_url %}
-                                <img src="{{ pharmacy.logo_url }}" alt="Logo" class="ms-2" style="width: 30px; height: 30px; object-fit: cover;">
+                            <img src="{{ pharmacy.logo_url }}" alt="Logo" class="ms-2"
+                                style="width: 30px; height: 30px; object-fit: cover;">
                             {% endif %}
                         </td>
                         <td>
@@ -62,32 +63,37 @@
                         <td>{{ pharmacy.email or 'N/A' }}</td>
                         <td>
                             {% if pharmacy.is_active %}
-                                <span class="badge bg-success">Activa</span>
+                            <span class="badge bg-success">Activa</span>
                             {% else %}
-                                <span class="badge bg-danger">Inactiva</span>
+                            <span class="badge bg-danger">Inactiva</span>
                             {% endif %}
                         </td>
                         <td>
                             <div class="d-flex align-items-center">
-                                <div class="color-preview me-2" style="width: 20px; height: 20px; background-color: {{ pharmacy.theme_color }}; border-radius: 3px;"></div>
+                                <div class="color-preview me-2"
+                                    style="width: 20px; height: 20px; background-color: {{ pharmacy.theme_color }}; border-radius: 3px;">
+                                </div>
                                 <code>{{ pharmacy.theme_color }}</code>
                             </div>
                         </td>
                         <td>
                             <div class="btn-group" role="group">
-                                <a href="{{ url_for('pharmacy_home', slug=pharmacy.slug) }}" class="btn btn-sm btn-outline-primary" title="Ver sitio">
+                                <a href="{{ url_for('pharmacy_home', slug=pharmacy.slug) }}"
+                                    class="btn btn-sm btn-outline-primary" title="Ver sitio">
                                     <i class="fas fa-external-link-alt"></i>
                                 </a>
-                                <a href="{{ url_for('pharmacy_admin_login', slug=pharmacy.slug) }}" class="btn btn-sm btn-outline-info" title="Admin">
+                                <a href="{{ url_for('pharmacy_admin_login', slug=pharmacy.slug) }}"
+                                    class="btn btn-sm btn-outline-info" title="Admin">
                                     <i class="fas fa-cog"></i>
                                 </a>
-                                <a href="{{ url_for('admin_pharmacy_users', pharmacy_id=pharmacy.id) }}" class="btn btn-sm btn-outline-secondary" title="Usuarios">
+                                <a href="{{ url_for('admin_pharmacy_users', pharmacy_id=pharmacy.id) }}"
+                                    class="btn btn-sm btn-outline-secondary" title="Usuarios">
                                     <i class="fas fa-users"></i>
                                 </a>
-                                <a href="{{ url_for('toggle_pharmacy_status', pharmacy_id=pharmacy.id) }}" 
-                                   class="btn btn-sm btn-{{ 'outline-warning' if pharmacy.is_active else 'outline-success' }}"
-                                   title="{{ 'Desactivar' if pharmacy.is_active else 'Activar' }}"
-                                   onclick="return confirm('¿Estás seguro de {{ 'desactivar' if pharmacy.is_active else 'activar' }} esta farmacia?')">
+                                <a href="{{ url_for('toggle_pharmacy_status', pharmacy_id=pharmacy.id) }}"
+                                    class="btn btn-sm btn-{{ 'outline-warning' if pharmacy.is_active else 'outline-success' }}"
+                                    title="{{ 'Desactivar' if pharmacy.is_active else 'Activar' }}"
+                                    onclick="return confirm('¿Estás seguro de {{ 'desactivar' if pharmacy.is_active else 'activar' }} esta farmacia?')">
                                     <i class="fas fa-{{ 'pause' if pharmacy.is_active else 'play' }}"></i>
                                 </a>
                             </div>
@@ -110,7 +116,7 @@
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="POST" action="{{ url_for('admin_pharmacies') }}">
+            <form method="POST" action="{{ url_for('admin_pharmacies') }}" enctype="multipart/form-data">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -123,12 +129,12 @@
                             <small class="form-text text-muted">Ejemplo: farmacia-central</small>
                         </div>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="description" class="form-label">Descripción</label>
                         <textarea class="form-control" id="description" name="description" rows="3"></textarea>
                     </div>
-                    
+
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="address" class="form-label">Dirección *</label>
@@ -139,7 +145,7 @@
                             <input type="tel" class="form-control" id="phone" name="phone">
                         </div>
                     </div>
-                    
+
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="email" class="form-label">Email</label>
@@ -147,8 +153,15 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="theme_color" class="form-label">Color del Tema</label>
-                            <input type="color" class="form-control form-control-color" id="theme_color" name="theme_color" value="#007bff">
+                            <input type="color" class="form-control form-control-color" id="theme_color"
+                                name="theme_color" value="#007bff">
                         </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="logo" class="form-label">Logo de la Farmacia</label>
+                        <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+                        <small class="form-text text-muted">Formatos permitidos: PNG, JPG, JPEG, GIF, WEBP</small>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -165,15 +178,15 @@
 
 {% block extra_js %}
 <script>
-// Auto-generate slug from name
-document.getElementById('name').addEventListener('input', function() {
-    const name = this.value;
-    const slug = name.toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .trim('-');
-    document.getElementById('slug').value = slug;
-});
+    // Auto-generate slug from name
+    document.getElementById('name').addEventListener('input', function () {
+        const name = this.value;
+        const slug = name.toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .trim('-');
+        document.getElementById('slug').value = slug;
+    });
 </script>
 {% endblock %}

@@ -98,6 +98,18 @@ def admin_pharmacies():
             email = request.form['email']
             theme_color = request.form['theme_color']
             
+            # Manejo del Logo
+            logo_url = None
+            if 'logo' in request.files:
+                file = request.files['logo']
+                if file and file.filename != '':
+                    allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+                    if '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in allowed_extensions:
+                        filename = secure_filename(f"logo_{slug}_{file.filename}")
+                        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                        file.save(filepath)
+                        logo_url = f"/static/uploads/{filename}"
+            
             # Verificar si el slug ya existe
             if Pharmacy.query.filter_by(slug=slug).first():
                 flash(f'El slug "{slug}" ya está en uso. Por favor elige otro.', 'error')
@@ -130,6 +142,7 @@ def admin_pharmacies():
                 phone=phone,
                 email=email,
                 theme_color=theme_color,
+                logo_url=logo_url,
                 admin_user_id=admin_user.id
             )
             
