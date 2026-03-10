@@ -3,55 +3,41 @@
 {% block title %}Checkout - {{ pharmacy.name }}{% endblock %}
 
 {% block content %}
-<!-- Header -->
-<div class="bg-primary text-white py-4">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <h1 class="h2 mb-2">
-                    <i class="fas fa-credit-card me-2"></i>Finalizar Compra
-                </h1>
-                <p class="mb-0">{{ pharmacy.name }} - Completa tu pedido</p>
-            </div>
-            <div class="col-md-4 text-end">
-                <a href="{{ url_for('pharmacy_cart', slug=pharmacy.slug) }}" class="btn btn-light">
-                    <i class="fas fa-arrow-left me-2"></i>Volver al Carrito
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-
 <div class="container py-4">
     {% if cart_items %}
     <form method="POST">
         <div class="row">
             <!-- Customer Information -->
             <div class="col-lg-8">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">
-                            <i class="fas fa-user me-2"></i>Información Personal
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 text-dark fw-bold">
+                            <i class="fas fa-user me-2" style="color: {{ pharmacy.theme_color }};"></i>Información
+                            Personal
                         </h5>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6 mb-3">
+                                <label class="form-label small text-muted">Nombre Completo</label>
                                 <input type="text" class="form-control" id="customer_name" name="customer_name"
                                     value="{{ current_user.name if current_user.is_authenticated else '' }}" required>
                             </div>
                             <div class="col-md-6 mb-3">
+                                <label class="form-label small text-muted">Correo Electrónico</label>
                                 <input type="email" class="form-control" id="customer_email" name="customer_email"
                                     value="{{ current_user.email if current_user.is_authenticated else '' }}" required>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
+                                <label class="form-label small text-muted">Teléfono</label>
                                 <input type="tel" class="form-control" id="customer_phone" name="customer_phone"
                                     value="{{ current_user.phone if current_user.is_authenticated else '' }}">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <textarea class="form-control" id="customer_address" name="customer_address" rows="3"
+                                <label class="form-label small text-muted">Dirección de Entrega</label>
+                                <textarea class="form-control" id="customer_address" name="customer_address" rows="2"
                                     required>{{ current_user.address if current_user.is_authenticated else '' }}</textarea>
                             </div>
                         </div>
@@ -59,66 +45,60 @@
                 </div>
 
                 <!-- Payment Information -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">
-                            <i class="fas fa-credit-card me-2"></i>Información de Pago
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 text-dark fw-bold">
+                            <i class="fas fa-credit-card me-2" style="color: {{ pharmacy.theme_color }};"></i>Pago
                         </h5>
                     </div>
                     <div class="card-body">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            <strong>Pago contra entrega:</strong> Pagarás cuando recibas tu pedido.
+                        <div class="alert alert-info border-0 shadow-sm"
+                            style="background-color: rgba(var(--bs-info-rgb), 0.1);">
+                            <i class="fas fa-info-circle me-2 text-info"></i>
+                            <strong>Pago contra entrega:</strong> Pagarás cómodamente al recibir tu pedido.
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="payment_method" class="form-label">Método de Pago</label>
+                                <label for="payment_method" class="form-label small text-muted">Método de Pago</label>
                                 <select class="form-select" id="payment_method" name="payment_method">
                                     <option value="efectivo">Efectivo</option>
-                                    <option value="tarjeta">Tarjeta de Crédito/Débito</option>
-                                    <option value="transferencia">Transferencia Bancaria</option>
+                                    <option value="tarjeta">Tarjeta (Débito/Crédito)</option>
+                                    <option value="transferencia">Transferencia</option>
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="delivery_notes" class="form-label">Notas de Entrega</label>
-                                <textarea class="form-control" id="delivery_notes" name="delivery_notes" rows="3"
-                                    placeholder="Instrucciones especiales para la entrega..."></textarea>
+                                <label for="delivery_notes" class="form-label small text-muted">Notas
+                                    adicionales</label>
+                                <textarea class="form-control" id="delivery_notes" name="delivery_notes" rows="2"
+                                    placeholder="Ej: Apartamento 4B, frente al parque..."></textarea>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Order Items -->
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">
-                            <i class="fas fa-list me-2"></i>Productos del Pedido
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 text-dark fw-bold">
+                            <i class="fas fa-list me-2" style="color: {{ pharmacy.theme_color }};"></i>Tu Pedido
                         </h5>
                     </div>
                     <div class="card-body">
                         {% for item in cart_items %}
                         <div class="row align-items-center mb-3">
-                            <div class="col-md-2">
-                                {% if item.product.image_url %}
-                                <img src="{{ item.product.image_url }}" class="img-fluid rounded"
-                                    alt="{{ item.product.name }}">
-                                {% else %}
-                                <div class="bg-light rounded d-flex align-items-center justify-content-center"
-                                    style="height: 60px;">
-                                    <i class="fas fa-pills text-muted"></i>
+                            <div class="col-2 col-md-1">
+                                <div class="bg-light rounded text-center py-2">
+                                    <i class="fas fa-pills text-muted small"></i>
                                 </div>
-                                {% endif %}
                             </div>
-                            <div class="col-md-6">
-                                <h6 class="mb-1">{{ item.product.name }}</h6>
-                                <small class="text-muted">{{ item.product.description[:50] }}...</small>
+                            <div class="col-6 col-md-7">
+                                <h6 class="mb-0 fw-bold small text-truncate">{{ item.product.name }}</h6>
+                                <small class="text-muted">Cant: {{ item.quantity }}</small>
                             </div>
-                            <div class="col-md-2 text-center">
-                                <span class="text-muted">Cantidad: {{ item.quantity }}</span>
-                            </div>
-                            <div class="col-md-2 text-end">
-                                <span class="fw-bold">${{ "%.2f"|format(item.subtotal) }}</span>
+                            <div class="col-4 col-md-4 text-end">
+                                <span class="fw-bold small" style="color: {{ pharmacy.theme_color }};">${{
+                                    "%.2f"|format(item.subtotal) }}</span>
                             </div>
                         </div>
                         {% endfor %}
@@ -128,39 +108,45 @@
 
             <!-- Order Summary -->
             <div class="col-lg-4">
-                <div class="card sticky-top" style="top: 20px;">
-                    <div class="card-header">
-                        <h5 class="mb-0">
-                            <i class="fas fa-calculator me-2"></i>Resumen del Pedido
+                <div class="card shadow-sm border-0 sticky-top" style="top: 20px;">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 text-dark fw-bold">
+                            <i class="fas fa-calculator me-2" style="color: {{ pharmacy.theme_color }};"></i>Resumen
                         </h5>
                     </div>
                     <div class="card-body">
                         <div class="d-flex justify-content-between mb-2">
-                            <span>Subtotal:</span>
-                            <span>${{ "%.2f"|format(total) }}</span>
+                            <span class="text-muted">Subtotal:</span>
+                            <span class="fw-bold">${{ "%.2f"|format(total) }}</span>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
-                            <span>Envío:</span>
-                            <span class="text-success">Gratis</span>
+                            <span class="text-muted">Envío:</span>
+                            <span class="text-success fw-bold">Gratis</span>
                         </div>
-                        <hr>
-                        <div class="d-flex justify-content-between mb-3">
-                            <strong>Total:</strong>
-                            <strong class="text-primary">${{ "%.2f"|format(total) }}</strong>
+                        <hr class="my-3">
+                        <div class="d-flex justify-content-between mb-4">
+                            <span class="h5 mb-0 fw-bold">Total:</span>
+                            <span class="h5 mb-0 fw-bold" style="color: {{ pharmacy.theme_color }};">${{
+                                "%.2f"|format(total) }}</span>
                         </div>
 
                         <input type="hidden" name="total_amount" value="{{ total }}">
 
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-success btn-lg">
-                                <i class="fas fa-check me-2"></i>Confirmar Pedido
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-lg py-3 fw-bold"
+                                style="background-color: {{ pharmacy.theme_color }}; border-color: {{ pharmacy.theme_color }}; color: white; border-radius: 10px;">
+                                <i class="fas fa-check-circle me-2"></i>Confirmar Pedido
                             </button>
+                            <a href="{{ url_for('pharmacy_cart', slug=pharmacy.slug) }}" class="btn py-2"
+                                style="color: {{ pharmacy.theme_color }}; border: 2px solid {{ pharmacy.theme_color }}; border-radius: 10px; font-weight: 500;">
+                                <i class="fas fa-arrow-left me-2"></i>Volver al Carrito
+                            </a>
                         </div>
 
-                        <div class="mt-3">
+                        <div class="mt-4 text-center">
                             <small class="text-muted">
-                                <i class="fas fa-shield-alt me-1"></i>
-                                Tu información está protegida y será utilizada únicamente para procesar tu pedido.
+                                <i class="fas fa-lock me-1"></i>
+                                Transacción segura y encriptada
                             </small>
                         </div>
                     </div>

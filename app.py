@@ -360,6 +360,7 @@ def pharmacy_home(slug):
 def pharmacy_products(slug):
     pharmacy = Pharmacy.query.filter_by(slug=slug, is_active=True).first_or_404()
     
+    page = request.args.get('page', 1, type=int)
     search_query = request.args.get('search', '').strip()
     category_filter = request.args.get('category', '').strip()
     max_price = request.args.get('max_price', '').strip()
@@ -372,14 +373,19 @@ def pharmacy_products(slug):
     if category_filter:
         query = query.filter(Product.category == category_filter)
     
-    if max_price and max_price.isdigit():
-        query = query.filter(Product.price <= float(max_price))
+    if max_price:
+        try:
+            query = query.filter(Product.price <= float(max_price))
+        except ValueError:
+            pass
     
-    products = query.all()
+    pagination = query.paginate(page=page, per_page=50, error_out=False)
+    products = pagination.items
     
     return render_template('pharmacy/products.html', 
                          pharmacy=pharmacy, 
                          products=products,
+                         pagination=pagination,
                          search_query=search_query,
                          category_filter=category_filter,
                          max_price=max_price)

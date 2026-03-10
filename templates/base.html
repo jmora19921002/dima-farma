@@ -131,6 +131,26 @@
         {% block content %}{% endblock %}
     </main>
 
+    {% if pharmacy %}
+    <!-- Floating Cart Button -->
+    <a href="{{ url_for('pharmacy_cart', slug=pharmacy.slug) }}"
+        class="btn shadow-lg d-flex align-items-center justify-content-center p-0"
+        style="position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background-color: {{ pharmacy.theme_color }}; color: white; z-index: 1050; border: none;">
+        <i class="fas fa-shopping-cart fa-lg"></i>
+        <span class="badge bg-danger rounded-pill cart-count"
+            style="position: absolute; top: 0; right: 0; transform: translate(10%, -10%); font-size: 0.7rem;">
+            {{ session.get('cart', {})|length if session.get('cart') else 0 }}
+        </span>
+    </a>
+    <style>
+        .btn:hover {
+            filter: brightness(90%);
+            transform: scale(1.05);
+            transition: all 0.2s;
+        }
+    </style>
+    {% endif %}
+
     <!-- Footer -->
     <footer class="bg-light py-4 mt-5">
         <div class="container text-center">
