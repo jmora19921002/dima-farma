@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="64" fill="#007bff"/>
+  <g fill="white">
+    <path d="M256 120c-75 0-136 61-136 136 0 50 27 94 68 118v54c0 18 14 32 32 32h72c18 0 32-14 32-32v-54c41-24 68-68 68-118 0-75-61-136-136-136zm40 192h-80v-32h80v32zm40-56c0 11-9 20-20 20h-40c-11 0-20-9-20-20v-8h80v8zm-112-64c-22-17-40-42-40-72 0-50 41-91 91-91s91 41 91 91c0 30-18 55-40 72h-102z"/>
+  </g>
+  <text x="256" y="420" font-family="Arial" font-size="80" font-weight="bold" fill="white" text-anchor="middle">DF</text>
+</svg>
