@@ -46,8 +46,13 @@
                             <strong>Tipo:</strong>
                             {% if promotion.promotion_type == 'image' %}
                             <span class="badge bg-info">Imagen</span>
-                            {% else %}
+                            {% elif promotion.promotion_type == 'product' %}
                             <span class="badge bg-warning">Producto</span>
+                            {% if promotion.discount_percentage > 0 %}
+                            <span class="badge bg-danger">{{ promotion.discount_percentage }}% dto.</span>
+                            {% endif %}
+                            {% else %}
+                            <span class="badge bg-primary">Categoría</span>
                             {% if promotion.discount_percentage > 0 %}
                             <span class="badge bg-danger">{{ promotion.discount_percentage }}% dto.</span>
                             {% endif %}
@@ -57,6 +62,10 @@
                         {% if promotion.promotion_type == 'product' and promotion.product %}
                         <div class="mb-2">
                             <small class="text-muted">Producto: {{ promotion.product.name }}</small>
+                        </div>
+                        {% elif promotion.promotion_type == 'category' and promotion.category %}
+                        <div class="mb-2">
+                            <small class="text-muted">Categoría: {{ promotion.category }}</small>
                         </div>
                         {% endif %}
                         
