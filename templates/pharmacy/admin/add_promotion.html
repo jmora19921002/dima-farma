@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Nueva Promoción | {{ pharmacy.name }}{% endblock %}
+
+{% block content %}
+{% set categories = products|map(attribute='category')|unique|reject('none')|list %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1>
+            <i class="fas fa-plus me-2"></i>Nueva Promoción
+        </h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Título de la promoción</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="description" name="description" rows="2"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de promoción</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="promotion_type" id="type_image" value="image" checked onchange="togglePromotionFields()">
+                            <label class="form-check-label" for="type_image">
+                                <i class="fas fa-image me-1"></i> Imagen (Banner publicitario)
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="promotion_type" id="type_product" value="product" onchange="togglePromotionFields()">
+                            <label class="form-check-label" for="type_product">
+                                <i class="fas fa-tag me-1"></i> Producto con descuento
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="promotion_type" id="type_category" value="category" onchange="togglePromotionFields()">
+                            <label class="form-check-label" for="type_category">
+                                <i class="fas fa-layer-group me-1"></i> Categoría con descuento
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Campos para promoción de imagen -->
+                    <div id="imageFields">
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Imagen de la promoción</label>
+                            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                            <small class="text-muted">Recomendado: 1200x400px</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="link_url" class="form-label">Enlace (opcional)</label>
+                            <input type="url" class="form-control" id="link_url" name="link_url" placeholder="https://...">
+                            <small class="text-muted">URL a la que redirigirá al hacer clic en la imagen</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Campos para promoción de producto -->
+                    <div id="productFields" style="display: none;">
+                        <div class="mb-3">
+                            <label for="product_id" class="form-label">Producto en promoción</label>
+                            <select class="form-select" id="product_id" name="product_id">
+                                <option value="">Selecciona un producto</option>
+                                {% for product in products %}
+                                <option value="{{ product.id }}">{{ product.name }} - ${{ "%.2f"|format(product.price) }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="discount_percentage" class="form-label">Porcentaje de descuento (%)</label>
+                            <input type="number" class="form-control" id="discount_percentage" name="discount_percentage" min="0" max="100" step="0.01" value="0">
+                        </div>
+                    </div>
+                    
+                    <!-- Campos para promoción de categoría -->
+                    <div id="categoryFields" style="display: none;">
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Categoría en promoción</label>
+                            <select class="form-select" id="category" name="category">
+                                <option value="">Selecciona una categoría</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat }}">{{ cat }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="discount_percentage" class="form-label">Porcentaje de descuento (%)</label>
+                            <input type="number" class="form-control" id="discount_percentage" name="discount_percentage" min="0" max="100" step="0.01" value="0">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="start_date" class="form-label">Fecha de inicio</label>
+                            <input type="date" class="form-control" id="start_date" name="start_date">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="end_date" class="form-label">Fecha de fin</label>
+                            <input type="date" class="form-control" id="end_date" name="end_date">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="display_order" class="form-label">Orden de visualización</label>
+                        <input type="number" class="form-control" id="display_order" name="display_order" value="0" min="0">
+                        <small class="text-muted">Menor número = aparece primero</small>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="is_active" name="is_active" checked>
+                        <label class="form-check-label" for="is_active">Activa</label>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Guardar Promoción
+                        </button>
+                        <a href="{{ url_for('pharmacy_admin_promotions', slug=pharmacy.slug) }}" class="btn btn-outline-secondary">
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-info-circle me-2"></i>Ayuda
+                </h5>
+                <h6>Tipo Imagen</h6>
+                <p class="small text-muted">Sube una imagen para mostrar como banner publicitario en el carrusel de la tienda.</p>
+                
+                <h6>Tipo Producto</h6>
+                <p class="small text-muted">Selecciona un producto de tu inventario y aplica un descuento. El descuento se mostrará en la tarjeta del producto.</p>
+                
+                <h6>Tipo Categoría</h6>
+                <p class="small text-muted">Selecciona una categoría y aplica un descuento a todos los productos de esa categoría.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePromotionFields() {
+    const typeImage = document.getElementById('type_image').checked;
+    const typeProduct = document.getElementById('type_product').checked;
+    const imageFields = document.getElementById('imageFields');
+    const productFields = document.getElementById('productFields');
+    const categoryFields = document.getElementById('categoryFields');
+    
+    imageFields.style.display = typeImage ? 'block' : 'none';
+    productFields.style.display = typeProduct ? 'block' : 'none';
+    categoryFields.style.display = !typeImage && !typeProduct ? 'block' : 'none';
+}
+</script>
+{% endblock %}

@@ -20,39 +20,62 @@
     </div>
 </div>
 
-<!-- Categories Section (Moved to Top) -->
-<div class="bg-light py-4 mb-4">
-    <div class="container">
-        <div class="row mb-3">
-            <div class="col-12 text-center">
-                <h3 class="mb-0 fw-bold" style="color: {{ pharmacy.theme_color }};">
-                    <i class="fas fa-tags me-2"></i>Nuestras Categorías
-                </h3>
-            </div>
+<!-- Advertising Carousel -->
+{% if promotions %}
+<div class="container py-4">
+    <div id="advertisementCarousel" class="carousel slide" data-bs-ride="carousel">
+        {% if promotions|length > 1 %}
+        <div class="carousel-indicators">
+            {% for promotion in promotions %}
+            <button type="button" data-bs-target="#advertisementCarousel" data-bs-slide-to="{{ loop.index0 }}" {% if loop.first %}class="active"{% endif %}></button>
+            {% endfor %}
         </div>
-
-        <div class="d-flex flex-nowrap overflow-x-auto pb-3 px-2 gap-2 justify-content-md-center container-categories">
-            {% set categories = products|map(attribute='category')|unique|list %}
-            {% for category in categories %}
-            <div class="flex-shrink-0">
-                <a href="{{ url_for('pharmacy_products', slug=pharmacy.slug) }}?category={{ category }}"
-                    class="text-decoration-none">
-                    <div class="card text-center border-0 shadow-sm hover-elevate" style="width: 120px;">
-                        <div class="card-body py-2 px-1">
-                            <i class="fas fa-pills mb-1" style="color: {{ pharmacy.theme_color }};"></i>
-                            <div class="small fw-bold text-dark text-truncate" title="{{ category }}">{{ category }}
-                            </div>
-                            <div class="text-muted" style="font-size: 0.7rem;">
-                                {{ products|selectattr('category', 'equalto', category)|list|length }} un.
-                            </div>
+        {% endif %}
+        <div class="carousel-inner rounded shadow-sm">
+            {% for promotion in promotions %}
+            <div class="carousel-item {% if loop.first %}active{% endif %}" data-bs-interval="5000">
+                {% if promotion.promotion_type == 'image' %}
+                    {% if promotion.link_url %}
+                    <a href="{{ promotion.link_url }}">
+                        <img src="{{ promotion.image_url }}" class="d-block w-100" alt="{{ promotion.title }}" style="height: 250px; object-fit: cover;">
+                    </a>
+                    {% else %}
+                    <img src="{{ promotion.image_url }}" class="d-block w-100" alt="{{ promotion.title }}" style="height: 250px; object-fit: cover;">
+                    {% endif %}
+                    {% if promotion.description %}
+                    <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded">
+                        <h5>{{ promotion.title }}</h5>
+                        <p>{{ promotion.description }}</p>
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <div class="bg-{{ pharmacy.theme_color }} d-flex align-items-center justify-content-center" style="height: 250px;">
+                        <div class="text-center text-white">
+                            <h3><i class="fas fa-tag fa-2x me-2"></i>{{ promotion.title }}</h3>
+                            <p class="mb-0">{{ promotion.description }}</p>
+                            {% if promotion.discount_percentage > 0 and promotion.product %}
+                            <h2 class="mt-2 fw-bold">{{ promotion.discount_percentage }}% dto.</h2>
+                            <a href="{{ url_for('pharmacy_products', slug=pharmacy.slug) }}?promo={{ promotion.id }}" class="btn btn-light mt-2">Ver Producto</a>
+                            {% endif %}
                         </div>
                     </div>
-                </a>
+                {% endif %}
             </div>
             {% endfor %}
         </div>
+        {% if promotions|length > 1 %}
+        <button class="carousel-control-prev" type="button" data-bs-target="#advertisementCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Anterior</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#advertisementCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Siguiente</span>
+        </button>
+        {% endif %}
     </div>
 </div>
+{% endif %}
 
 <!-- Featured Products -->
 <div class="container py-4">
@@ -65,7 +88,9 @@
     </div>
 
     <div class="row g-2 justify-content-center">
+        {% set active_promos = promotions|selectattr('promotion_type', 'equalto', 'product')|list %}
         {% for product in products[:12] %}
+        {% set product_promo = active_promos|selectattr('product_id', 'equalto', product.id)|first %}
         <div class="col-6 col-md-4 col-lg-2 mb-3">
             <div class="card h-100 shadow-sm border-0 product-card-compact">
                 {% if product.image_url %}
@@ -77,13 +102,26 @@
                     <i class="fas fa-pills fa-2x text-muted"></i>
                 </div>
                 {% endif %}
+                {% if product_promo and product_promo.discount_percentage > 0 %}
+                <div class="position-absolute top-0 end-0 bg-danger text-white px-2 py-1 m-1 rounded" style="font-size: 0.7rem; font-weight: bold;">
+                    -{{ product_promo.discount_percentage|int }}%
+                </div>
+                {% endif %}
                 <div class="card-body d-flex flex-column p-2">
                     <h6 class="card-title mb-1 text-dark small fw-bold text-truncate" title="{{ product.name }}">{{
                         product.name }}</h6>
                     <div class="mt-auto">
                         <div class="d-flex justify-content-between align-items-center mb-1">
+                            {% if product_promo and product_promo.discount_percentage > 0 %}
+                            {% set discounted_price = product.price * (1 - product_promo.discount_percentage / 100) %}
+                            <div>
+                                <span class="text-muted text-decoration-line-through" style="font-size: 0.7rem;">${{ "%.2f"|format(product.price) }}</span>
+                                <span class="fw-bold d-block" style="font-size: 0.9rem; color: {{ pharmacy.theme_color }};">${{ "%.2f"|format(discounted_price) }}</span>
+                            </div>
+                            {% else %}
                             <span class="fw-bold" style="font-size: 0.9rem; color: {{ pharmacy.theme_color }};">${{
                                 "%.2f"|format(product.price) }}</span>
+                            {% endif %}
                             <span
                                 class="badge bg-{% if product.stock_quantity > 10 %}success{% elif product.stock_quantity > 0 %}warning{% else %}danger{% endif %} p-1"
                                 style="font-size: 0.6rem;">

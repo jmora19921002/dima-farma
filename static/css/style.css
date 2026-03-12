@@ -105,6 +105,8 @@ body {
 }
 
 /* Responsive */
+
+/* Responsive and Mobile-only Styles */
 @media (max-width: 768px) {
     .btn-group {
         display: flex;
@@ -117,6 +119,92 @@ body {
     
     .table-responsive {
         font-size: 0.875rem;
+    }
+
+    /* Bottom Navigation Menu */
+    .mobile-bottom-nav {
+        display: flex !important;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background-color: #fff;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        z-index: 1040;
+        justify-content: space-around;
+        align-items: center;
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .mobile-bottom-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: #6c757d;
+        font-size: 0.7rem;
+    }
+
+    .mobile-bottom-nav-item i {
+        font-size: 1.2rem;
+        margin-bottom: 2px;
+    }
+
+    /* Transparent top navbar on mobile */
+    .navbar.mobile-pharmacy-nav {
+        background-color: transparent !important;
+        box-shadow: none !important;
+    }
+    
+    .navbar.mobile-pharmacy-nav .navbar-brand {
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
+
+    /* Search bar with internal icon */
+    .search-container-mobile {
+        position: relative;
+        width: 100%;
+    }
+
+    .search-container-mobile .form-control {
+        padding-left: 2.5rem;
+        border-radius: 20px;
+        border: 1px solid #dee2e6;
+    }
+
+    .search-container-mobile .search-icon-internal {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #adb5bd;
+    }
+
+    /* Inverted Button Style for Mobile */
+    .btn-mobile-inverted {
+        background-color: transparent !important;
+        border: 2px solid currentColor !important;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    /* Remove card background for filters on mobile */
+    .mobile-no-background {
+        background: transparent !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
+    
+    /* Adjust main content padding for bottom nav */
+    main.container {
+        padding-bottom: 70px !important;
+    }
+
+    /* Adjust floating cart button position */
+    .floating-cart-btn {
+        bottom: 80px !important;
     }
 }
 

@@ -18,18 +18,20 @@
 
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark"
+    <nav class="navbar navbar-expand-lg navbar-dark {% if pharmacy %}mobile-pharmacy-nav{% endif %}"
         style="background-color: {{ pharmacy.theme_color if pharmacy else '#007bff' }};">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center"
-                href="{{ url_for('pharmacy_home', slug=pharmacy.slug) if pharmacy else url_for('admin_home') }}">
+                href="{{ url_for('pharmacy_home', slug=pharmacy.slug) if pharmacy else url_for('admin_home') }}"
+                style="{% if pharmacy %}color: {{ pharmacy.theme_color }} !important;{% endif %}">
                 {% if pharmacy and pharmacy.logo_url %}
                 <img src="{{ pharmacy.logo_url }}" alt="Logo" class="me-2"
                     style="width: 35px; height: 35px; object-fit: contain;">
                 {% else %}
                 <i class="fas fa-clinic-medical me-2"></i>
                 {% endif %}
-                {{ pharmacy.name if pharmacy else 'DimaFarm' }}
+                <span class="d-none d-lg-inline">{{ pharmacy.name if pharmacy else 'DimaFarm' }}</span>
+                <span class="d-inline d-lg-none">{{ pharmacy.name if pharmacy else 'DimaFarm' }}</span>
             </a>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -132,9 +134,8 @@
     </main>
 
     {% if pharmacy %}
-    <!-- Floating Cart Button -->
     <a href="{{ url_for('pharmacy_cart', slug=pharmacy.slug) }}"
-        class="btn shadow-lg d-flex align-items-center justify-content-center p-0"
+        class="btn shadow-lg d-flex align-items-center justify-content-center p-0 floating-cart-btn"
         style="position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background-color: {{ pharmacy.theme_color }}; color: white; z-index: 1050; border: none;">
         <i class="fas fa-shopping-cart fa-lg"></i>
         <span class="badge bg-danger rounded-pill cart-count"
@@ -142,6 +143,33 @@
             {{ session.get('cart', {})|length if session.get('cart') else 0 }}
         </span>
     </a>
+
+    <!-- Mobile Bottom Navigation -->
+    <div class="mobile-bottom-nav d-none">
+        <a href="{{ url_for('pharmacy_home', slug=pharmacy.slug) }}" class="mobile-bottom-nav-item">
+            <i class="fas fa-home"></i>
+            <span>Inicio</span>
+        </a>
+        <a href="{{ url_for('pharmacy_products', slug=pharmacy.slug) }}?category=all" class="mobile-bottom-nav-item">
+            <i class="fas fa-th-large"></i>
+            <span>Categorías</span>
+        </a>
+        <a href="{{ url_for('pharmacy_products', slug=pharmacy.slug) }}?brands=all" class="mobile-bottom-nav-item">
+            <i class="fas fa-tag"></i>
+            <span>Marcas</span>
+        </a>
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('logout', slug=pharmacy.slug) }}" class="mobile-bottom-nav-item">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Salir</span>
+        </a>
+        {% else %}
+        <a href="{{ url_for('pharmacy_login', slug=pharmacy.slug) }}" class="mobile-bottom-nav-item">
+            <i class="fas fa-user-circle"></i>
+            <span>Login</span>
+        </a>
+        {% endif %}
+    </div>
     <style>
         .btn:hover {
             filter: brightness(90%);

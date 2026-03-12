@@ -25,7 +25,7 @@ login_manager.init_app(app)
 login_manager.login_view = 'admin_login'
 CORS(app)
 
-from models import User, Pharmacy, Product, Order, OrderItem, Subscription, InventoryMovement, Category, AuditLog
+from models import User, Pharmacy, Product, Order, OrderItem, Subscription, InventoryMovement, Category, AuditLog, Promotion
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -354,7 +354,15 @@ def pharmacy_home(slug):
     pharmacy = Pharmacy.query.filter_by(slug=slug, is_active=True).first_or_404()
     products = Product.query.filter_by(pharmacy_id=pharmacy.id, is_active=True).all()
     
-    return render_template('pharmacy/home.html', pharmacy=pharmacy, products=products)
+    now = datetime.utcnow()
+    promotions = Promotion.query.filter(
+        Promotion.pharmacy_id == pharmacy.id,
+        Promotion.is_active == True,
+        (Promotion.start_date == None) | (Promotion.start_date <= now),
+        (Promotion.end_date == None) | (Promotion.end_date >= now)
+    ).order_by(Promotion.display_order).all()
+    
+    return render_template('pharmacy/home.html', pharmacy=pharmacy, products=products, promotions=promotions)
 
 @app.route('/pharmacy/<slug>/products')
 def pharmacy_products(slug):
@@ -690,6 +698,174 @@ def pharmacy_admin_delete_product(slug, product_id):
         flash(f'Error al eliminar producto: {str(e)}', 'error')
     
     return redirect(url_for('pharmacy_admin_products', slug=slug))
+
+@app.route('/pharmacy/<slug>/admin/promotions')
+@login_required
+def pharmacy_admin_promotions(slug):
+    pharmacy = Pharmacy.query.filter_by(slug=slug, is_active=True).first_or_404()
+    
+    if current_user.role != 'pharmacy_admin' or not current_user.pharmacy or current_user.pharmacy.slug != slug:
+        flash('Acceso denegado', 'error')
+        return redirect(url_for('pharmacy_admin_login', slug=slug))
+    
+    promotions = Promotion.query.filter_by(pharmacy_id=pharmacy.id).order_by(Promotion.display_order).all()
+    products = Product.query.filter_by(pharmacy_id=pharmacy.id).all()
+    return render_template('pharmacy/admin/promotions.html', pharmacy=pharmacy, promotions=promotions, products=products)
+
+@app.route('/pharmacy/<slug>/admin/promotions/add', methods=['GET', 'POST'])
+@login_required
+def pharmacy_admin_add_promotion(slug):
+    pharmacy = Pharmacy.query.filter_by(slug=slug, is_active=True).first_or_404()
+    
+    if current_user.role != 'pharmacy_admin' or not current_user.pharmacy or current_user.pharmacy.slug != slug:
+        flash('Acceso denegado', 'error')
+        return redirect(url_for('pharmacy_admin_login', slug=slug))
+    
+    if request.method == 'POST':
+        try:
+            title = request.form['title']
+            description = request.form['description']
+            promotion_type = request.form['promotion_type']
+            link_url = request.form.get('link_url', '')
+            discount_percentage = float(request.form.get('discount_percentage', 0))
+            product_id = request.form.get('product_id')
+            category = request.form.get('category')
+            display_order = int(request.form.get('display_order', 0))
+            is_active = 'is_active' in request.form
+            
+            start_date = None
+            if request.form.get('start_date'):
+                start_date = datetime.strptime(request.form['start_date'], '%Y-%m-%d')
+            
+            end_date = None
+            if request.form.get('end_date'):
+                end_date = datetime.strptime(request.form['end_date'], '%Y-%m-%d')
+            
+            image_url = None
+            if promotion_type == 'image':
+                if 'image' in request.files:
+                    file = request.files['image']
+                    if file and file.filename != '':
+                        allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+                        if '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in allowed_extensions:
+                            filename = secure_filename(f"promo_{pharmacy.slug}_{int(datetime.now().timestamp())}_{file.filename}")
+                            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                            file.save(filepath)
+                            image_url = f"/static/uploads/{filename}"
+            
+            promotion = Promotion(
+                title=title,
+                description=description,
+                image_url=image_url,
+                link_url=link_url,
+                promotion_type=promotion_type,
+                discount_percentage=discount_percentage,
+                product_id=product_id if product_id else None,
+                category=category if category else None,
+                display_order=display_order,
+                is_active=is_active,
+                start_date=start_date,
+                end_date=end_date,
+                pharmacy_id=pharmacy.id
+            )
+            
+            db.session.add(promotion)
+            db.session.commit()
+            
+            flash('Promoción creada exitosamente!', 'success')
+            return redirect(url_for('pharmacy_admin_promotions', slug=slug))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error al crear promoción: {str(e)}', 'error')
+    
+    products = Product.query.filter_by(pharmacy_id=pharmacy.id).all()
+    return render_template('pharmacy/admin/add_promotion.html', pharmacy=pharmacy, products=products)
+
+@app.route('/pharmacy/<slug>/admin/promotions/<int:promotion_id>/edit', methods=['GET', 'POST'])
+@login_required
+def pharmacy_admin_edit_promotion(slug, promotion_id):
+    pharmacy = Pharmacy.query.filter_by(slug=slug, is_active=True).first_or_404()
+    promotion = Promotion.query.filter_by(id=promotion_id, pharmacy_id=pharmacy.id).first_or_404()
+    
+    if current_user.role != 'pharmacy_admin' or not current_user.pharmacy or current_user.pharmacy.slug != slug:
+        flash('Acceso denegado', 'error')
+        return redirect(url_for('pharmacy_admin_login', slug=slug))
+    
+    if request.method == 'POST':
+        try:
+            promotion.title = request.form['title']
+            promotion.description = request.form['description']
+            promotion.promotion_type = request.form['promotion_type']
+            promotion.link_url = request.form.get('link_url', '')
+            promotion.discount_percentage = float(request.form.get('discount_percentage', 0))
+            promotion.product_id = request.form.get('product_id') if request.form.get('product_id') else None
+            promotion.category = request.form.get('category') if request.form.get('category') else None
+            promotion.display_order = int(request.form.get('display_order', 0))
+            promotion.is_active = 'is_active' in request.form
+            
+            if request.form.get('start_date'):
+                promotion.start_date = datetime.strptime(request.form['start_date'], '%Y-%m-%d')
+            else:
+                promotion.start_date = None
+            
+            if request.form.get('end_date'):
+                promotion.end_date = datetime.strptime(request.form['end_date'], '%Y-%m-%d')
+            else:
+                promotion.end_date = None
+            
+            if promotion.promotion_type == 'image':
+                if 'image' in request.files:
+                    file = request.files['image']
+                    if file and file.filename != '':
+                        allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+                        if '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in allowed_extensions:
+                            if promotion.image_url:
+                                old_filepath = os.path.join(app.root_path, 'static', promotion.image_url.lstrip('/'))
+                                if os.path.exists(old_filepath):
+                                    os.remove(old_filepath)
+                            
+                            filename = secure_filename(f"promo_{pharmacy.slug}_{int(datetime.now().timestamp())}_{file.filename}")
+                            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                            file.save(filepath)
+                            promotion.image_url = f"/static/uploads/{filename}"
+            
+            db.session.commit()
+            flash('Promoción actualizada exitosamente!', 'success')
+            return redirect(url_for('pharmacy_admin_promotions', slug=slug))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error al actualizar promoción: {str(e)}', 'error')
+    
+    products = Product.query.filter_by(pharmacy_id=pharmacy.id).all()
+    return render_template('pharmacy/admin/edit_promotion.html', pharmacy=pharmacy, promotion=promotion, products=products)
+
+@app.route('/pharmacy/<slug>/admin/promotions/<int:promotion_id>/delete', methods=['POST'])
+@login_required
+def pharmacy_admin_delete_promotion(slug, promotion_id):
+    pharmacy = Pharmacy.query.filter_by(slug=slug, is_active=True).first_or_404()
+    promotion = Promotion.query.filter_by(id=promotion_id, pharmacy_id=pharmacy.id).first_or_404()
+    
+    if current_user.role != 'pharmacy_admin' or not current_user.pharmacy or current_user.pharmacy.slug != slug:
+        flash('Acceso denegado', 'error')
+        return redirect(url_for('pharmacy_admin_login', slug=slug))
+    
+    try:
+        if promotion.image_url:
+            filepath = os.path.join(app.root_path, 'static', promotion.image_url.lstrip('/'))
+            if os.path.exists(filepath):
+                os.remove(filepath)
+        
+        db.session.delete(promotion)
+        db.session.commit()
+        flash('Promoción eliminada exitosamente!', 'success')
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error al eliminar promoción: {str(e)}', 'error')
+    
+    return redirect(url_for('pharmacy_admin_promotions', slug=slug))
 
 @app.route('/static/uploads/<filename>')
 def uploaded_file(filename):

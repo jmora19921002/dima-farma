@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Promociones | {{ pharmacy.name }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h1>
+            <i class="fas fa-bullhorn me-2"></i>Gestionar Promociones
+        </h1>
+        <a href="{{ url_for('pharmacy_admin_add_promotion', slug= pharmacy.slug) }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Nueva Promoción
+        </a>
+    </div>
+</div>
+
+{% if promotions %}
+<div class="row">
+    {% for promotion in promotions %}
+    <div class="col-md-6 mb-4">
+        <div class="card h-100 {% if not promotion.is_active %}opacity-75{% endif %}">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    {% if promotion.image_url %}
+                    <img src="{{ promotion.image_url }}" class="img-fluid rounded-start h-100" style="object-fit: cover;" alt="{{ promotion.title }}">
+                    {% else %}
+                    <div class="h-100 d-flex align-items-center justify-content-center bg-light rounded-start" style="min-height: 150px;">
+                        <i class="fas fa-tag fa-3x text-muted"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h5 class="card-title">{{ promotion.title }}</h5>
+                            {% if promotion.is_active %}
+                            <span class="badge bg-success">Activa</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Inactiva</span>
+                            {% endif %}
+                        </div>
+                        
+                        <p class="card-text small">{{ promotion.description }}</p>
+                        
+                        <div class="mb-2">
+                            <strong>Tipo:</strong>
+                            {% if promotion.promotion_type == 'image' %}
+                            <span class="badge bg-info">Imagen</span>
+                            {% else %}
+                            <span class="badge bg-warning">Producto</span>
+                            {% if promotion.discount_percentage > 0 %}
+                            <span class="badge bg-danger">{{ promotion.discount_percentage }}% dto.</span>
+                            {% endif %}
+                            {% endif %}
+                        </div>
+                        
+                        {% if promotion.promotion_type == 'product' and promotion.product %}
+                        <div class="mb-2">
+                            <small class="text-muted">Producto: {{ promotion.product.name }}</small>
+                        </div>
+                        {% endif %}
+                        
+                        {% if promotion.start_date or promotion.end_date %}
+                        <div class="mb-2">
+                            <small class="text-muted">
+                                {% if promotion.start_date %}Desde: {{ promotion.start_date.strftime('%d/%m/%Y') }}{% endif %}
+                                {% if promotion.end_date %} - Hasta: {{ promotion.end_date.strftime('%d/%m/%Y') }}{% endif %}
+                            </small>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="d-flex gap-2 mt-3">
+                            <a href="{{ url_for('pharmacy_admin_edit_promotion', slug=pharmacy.slug, promotion_id=promotion.id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                            <form method="POST" action="{{ url_for('pharmacy_admin_delete_promotion', slug=pharmacy.slug, promotion_id=promotion.id) }}" class="d-inline" onsubmit="return confirm('¿Estás seguro de eliminar esta promoción?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash"></i> Eliminar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5">
+    <i class="fas fa-bullhorn fa-4x text-muted mb-3"></i>
+    <h4 class="text-muted">No hay promociones</h4>
+    <p class="text-muted">Crea tu primera promoción para mostrar en el carrusel de la tienda.</p>
+    <a href="{{ url_for('pharmacy_admin_add_promotion', slug=pharmacy.slug) }}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Crear Primera Promoción
+    </a>
+</div>
+{% endif %}
+
+<div class="mt-4">
+    <a href="{{ url_for('pharmacy_admin_dashboard', slug=pharmacy.slug) }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
+    </a>
+</div>
+{% endblock %}
