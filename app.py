@@ -16,6 +16,18 @@ from urllib.parse import urlparse
 app = Flask(__name__)
 app.config.from_object(Config)
 
+import os
+
+# Configuración para producción
+if not os.environ.get('FLASK_DEBUG'):
+    # Solo en producción (Render)
+    port = int(os.environ.get('PORT', 5000))
+    host = '0.0.0.0'
+else:
+    # Desarrollo local
+    port = 5000
+    host = '0.0.0.0'
+
 from models import db
 
 db.init_app(app)
@@ -930,4 +942,5 @@ if __name__ == '__main__':
         print("💡 Asegúrate de que MySQL esté ejecutándose y las credenciales sean correctas")
     
     print("🚀 Iniciando aplicación Flask...")
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # Usa las variables configuradas
+    app.run(host=host, port=port, debug=True)
