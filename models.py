@@ -64,10 +64,16 @@ class Product(db.Model):
     category = db.Column(db.String(50))
     image_url = db.Column(db.String(255))
     sku = db.Column(db.String(50))  # Stock Keeping Unit
+    code_system = db.Column(db.String(50))  # Código del sistema local
+    Tasa = db.Column(db.Numeric(10, 2))  # Tasa/Factor
     is_active = db.Column(db.Boolean, default=True)
     pharmacy_id = db.Column(db.Integer, db.ForeignKey('pharmacy.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    __table_args__ = (
+        db.UniqueConstraint('pharmacy_id', 'code_system', name='_pharmacy_code_system_uc'),
+    )
     
     # Relationships
     order_items = db.relationship('OrderItem', backref='product', lazy=True)
@@ -167,8 +173,36 @@ class AuditLog(db.Model):
     user_agent = db.Column(db.String(255))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Relationships
     user = db.relationship('User', backref='audit_logs')
+    
+    def __repr__(self):
+        return f'<AuditLog {self.action}>'
+
+class Promotion(db.Model):
+    """Promotion model for advertisingcarousel"""
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text)
+    image_url = db.Column(db.String(255))
+    link_url = db.Column(db.String(255))
+    promotion_type = db.Column(db.String(20), nullable=False)  # 'image', 'product', or 'category'
+    discount_percentage = db.Column(db.Numeric(5, 2), default=0)  # Discount for product/category promotions
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=True)
+    category = db.Column(db.String(50), nullable=True)  # Category for category promotions
+    is_active = db.Column(db.Boolean, default=True)
+    display_order = db.Column(db.Integer, default=0)
+    start_date = db.Column(db.DateTime)
+    end_date = db.Column(db.DateTime)
+    pharmacy_id = db.Column(db.Integer, db.ForeignKey('pharmacy.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    product = db.relationship('Product', backref='promotions')
+    pharmacy = db.relationship('Pharmacy', backref='promotions')
+    
+    def __repr__(self):
+        return f'<Promotion {self.title}>'
+
     
     def __repr__(self):
         return f'<AuditLog {self.action}>'
