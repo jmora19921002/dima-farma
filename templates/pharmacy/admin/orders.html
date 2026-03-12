@@ -281,10 +281,8 @@
 <script>
 let currentOrderId = null;
 
-// Order management functions
 function viewOrder(orderId) {
     currentOrderId = orderId;
-    // Load order details via AJAX
     fetch(`/pharmacy/{{ pharmacy.slug }}/admin/order/${orderId}/details`)
         .then(response => response.json())
         .then(data => {
@@ -302,26 +300,54 @@ function viewOrder(orderId) {
 }
 
 function processOrder(orderId) {
-    document.getElementById('processOrderId').value = orderId;
-    $('#processOrderModal').modal('show');
+    if (confirm('¿Estás seguro de que quieres procesar este pedido?')) {
+        fetch(`/pharmacy/{{ pharmacy.slug }}/admin/order/${orderId}/process`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            location.reload();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al procesar pedido');
+        });
+    }
 }
 
 function completeOrder(orderId) {
     if (confirm('¿Estás seguro de que quieres marcar este pedido como completado?')) {
-        // Implement complete order functionality
-        console.log('Complete order:', orderId);
+        fetch(`/pharmacy/{{ pharmacy.slug }}/admin/order/${orderId}/complete`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            location.reload();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al completar pedido');
+        });
     }
 }
 
 function cancelOrder(orderId) {
-    if (confirm('¿Estás seguro de que quieres cancelar este pedido?')) {
-        // Implement cancel order functionality
-        console.log('Cancel order:', orderId);
+    if (confirm('¿Estás seguro de que quieres cancelar este pedido? El stock será restituido.')) {
+        fetch(`/pharmacy/{{ pharmacy.slug }}/admin/order/${orderId}/cancel`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            location.reload();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al cancelar pedido');
+        });
     }
 }
 
 function printOrder(orderId) {
-    // Open print window
     window.open(`/pharmacy/{{ pharmacy.slug }}/admin/order/${orderId}/print`, '_blank');
 }
 
@@ -332,28 +358,16 @@ function printOrderFromModal() {
 }
 
 function exportOrders() {
-    // Get current filters
     const status = document.getElementById('status_filter').value;
     const dateFrom = document.getElementById('date_from').value;
     const dateTo = document.getElementById('date_to').value;
     
-    // Build export URL
     let exportUrl = `/pharmacy/{{ pharmacy.slug }}/admin/orders/export?`;
     if (status) exportUrl += `status=${status}&`;
     if (dateFrom) exportUrl += `date_from=${dateFrom}&`;
     if (dateTo) exportUrl += `date_to=${dateTo}&`;
     
-    // Download file
     window.location.href = exportUrl;
 }
-
-// Form submissions
-$(document).ready(function() {
-    $('#processOrderForm').on('submit', function(e) {
-        e.preventDefault();
-        // Implement form submission
-        console.log('Process order form submitted');
-    });
-});
 </script>
 {% endblock %}

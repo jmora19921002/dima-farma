@@ -57,6 +57,26 @@
                                 </div>
                                 
                                 <div class="mb-3">
+                                    <label for="brand" class="form-label">Marca</label>
+                                    <input type="text" class="form-control" id="brand" name="brand" placeholder="Ej: Bayer, Genomma, etc">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="contraindications" class="form-label">Contraindicaciones</label>
+                                    <textarea class="form-control" id="contraindications" name="contraindications" rows="2" placeholder="Ej: No usar en embarazo, alérgicos a..."></textarea>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="similar_products" class="form-label">Productos Similares</label>
+                                    <select class="form-select" id="similar_products" name="similar_products" multiple>
+                                        {% for product in products %}
+                                        <option value="{{ product.id }}">{{ product.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <small class="text-muted">Mantén presionado Ctrl para seleccionar varios</small>
+                                </div>
+                                
+                                <div class="mb-3">
                                     <label for="price" class="form-label">Precio *</label>
                                     <div class="input-group">
                                         <span class="input-group-text">$</span>
